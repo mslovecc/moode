@@ -2289,6 +2289,27 @@
   "To latest version": "更新至最新版本",
   "Pairing confirmation": "配对确认"
 });
+  // Remaining PHP validation and service-status messages.
+  Object.assign(dict, {
+  "Path cannot be blank.": "路径不能为空。",
+  "Share cannot be blank.": "共享名称不能为空。",
+  "Userid cannot be blank.": "用户名不能为空。",
+  "Name already exists.": "名称已存在。",
+  "Name cannot be blank.": "名称不能为空。",
+  "Not in use": "未使用",
+  "Scale CPU frequency gradually based on load.": "根据系统负载逐步调整 CPU 频率。",
+  "Scale CPU frequency from min to max based on load.": "根据系统负载在最低和最高频率之间调整 CPU 频率。",
+  "Let a user-space program set the CPU frequency.": "由用户空间程序设置 CPU 频率。",
+  "Run the CPU at min frequency.": "以最低频率运行 CPU。",
+  "Run the CPU at max frequency.": "以最高频率运行 CPU。",
+  "Scale CPU frequency using the kernel scheduler load estimates.": "根据内核调度器的负载估算调整 CPU 频率。",
+  "CRITICAL ERROR: snd-config.php: Connection to MPD failed": "严重错误：snd-config.php：无法连接到 MPD。",
+  "Cache was last updated on": "缓存上次更新时间：",
+  "job submitted": "任务已提交",
+  "worker busy": "后台任务正在运行",
+  "Cache is empty": "缓存为空",
+  "Turn off": "关闭"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
