@@ -2269,6 +2269,26 @@
   "Displays Peppy meter when MPD starts playing (after a configurable timeout). Touching the display switches immediately to the WebUI. If a touch does not occur within the timeout period the display switches back to Peppy.": "MPD 开始播放后，在可配置的超时时间结束时显示 Peppy 仪表。触摸显示屏会立即切换到 WebUI。如果在超时时间内没有触摸操作，显示屏将切换回 Peppy。"
 });
   Object.assign(dict, {"Random":"随机播放","and":"和"});
+  // Renderer status, Bluetooth and multiroom backend messages.
+  Object.assign(dict, {
+  "Log is empty, refresh": "日志为空，请刷新。",
+  "Refresh to display status": "刷新以显示状态",
+  "Screen width and height cannot be blank.": "屏幕宽度和高度不能为空。",
+  "Pair or connect a device first.": "请先配对或连接设备。",
+  "Trust expires": "信任状态将过期",
+  "No devices": "没有设备",
+  "Volume levels initialized.": "音量级别已初始化。",
+  "Sender restarted.": "发送端已重新启动。",
+  "Receiver restarted.": "接收端已重新启动。",
+  "No receivers found": "未发现接收端",
+  "Discover has not been run yet": "尚未执行设备发现",
+  "Unknown command": "未知命令",
+  "Installed version": "已安装版本",
+  "Latest version": "最新版本",
+  "To version": "目标版本",
+  "To latest version": "更新至最新版本",
+  "Pairing confirmation": "配对确认"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
