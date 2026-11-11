@@ -2417,38 +2417,100 @@
     }
   }
 
-  function scan(root) {
+  // Process DOM updates incrementally. Audio Config creates many controls and
+  // updates them dynamically; a full subtree scan for every mutation can freeze
+  // the browser. Do not observe characterData: our own translations modify it.
+  var pendingRoots = new Set();
+  var walkers = [];
+  var framePending = false;
+  var requestFrame = window.requestAnimationFrame
+    ? window.requestAnimationFrame.bind(window)
+    : function (callback) { return window.setTimeout(callback, 16); };
+
+  function translateElementAttrs(el) {
+    if (!el || el.nodeType !== 1 || excluded(el)) return;
+    ['title', 'placeholder', 'aria-label'].forEach(function (a) {
+      translateAttr(el, a);
+    });
+  }
+
+  function enqueueRoot(root) {
     if (!root) return;
-    if (root.nodeType === 3) { translateText(root); return; }
-    if (root.nodeType !== 1 && root !== document) return;
-    if (root.nodeType === 1) {
-      ['title','placeholder','aria-label'].forEach(function (a) { translateAttr(root, a); });
+    if (root.nodeType === 3) {
+      translateText(root);
+      return;
     }
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
-    var nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(translateText);
-    if (root.querySelectorAll) {
-      root.querySelectorAll('[title],[placeholder],[aria-label]').forEach(function (el) {
-        ['title','placeholder','aria-label'].forEach(function (a) { translateAttr(el, a); });
-      });
+    if (root.nodeType !== 1 || pendingRoots.has(root)) return;
+    pendingRoots.add(root);
+    translateElementAttrs(root);
+    walkers.push({
+      root: root,
+      walker: document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+        null,
+        false
+      )
+    });
+    scheduleFrame();
+  }
+
+  function scheduleFrame() {
+    if (framePending) return;
+    framePending = true;
+    requestFrame(processFrame);
+  }
+
+  function processFrame() {
+    framePending = false;
+    var started = Date.now();
+    var processed = 0;
+
+    while (walkers.length && processed < 300 && Date.now() - started < 8) {
+      var task = walkers[0];
+      var node = task.walker.nextNode();
+
+      if (!node) {
+        pendingRoots.delete(task.root);
+        walkers.shift();
+        continue;
+      }
+
+      if (node.nodeType === 3) {
+        translateText(node);
+      } else if (node.nodeType === 1) {
+        translateElementAttrs(node);
+      }
+      processed++;
     }
+
+    if (walkers.length) scheduleFrame();
   }
 
   function start() {
     document.documentElement.lang = 'zh-CN';
-    scan(document.body);
+
+    // Observe only structural and selected accessibility-attribute changes.
+    // Excluding characterData prevents the observer from reacting to its own
+    // text replacements. Added subtrees are deduplicated and scanned in batches.
     var observer = new MutationObserver(function (records) {
       records.forEach(function (record) {
-        if (record.type === 'characterData') translateText(record.target);
-        if (record.type === 'childList') record.addedNodes.forEach(function (n) { scan(n); });
-        if (record.type === 'attributes') translateAttr(record.target, record.attributeName);
+        if (record.type === 'childList') {
+          record.addedNodes.forEach(enqueueRoot);
+        } else if (record.type === 'attributes') {
+          translateAttr(record.target, record.attributeName);
+        }
       });
     });
+
     observer.observe(document.body, {
-      subtree: true, childList: true, characterData: true, attributes: true,
-      attributeFilter: ['title','placeholder','aria-label']
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['title', 'placeholder', 'aria-label']
     });
+
+    enqueueRoot(document.body);
   }
 
   if (document.readyState === 'loading') {
