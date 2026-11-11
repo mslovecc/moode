@@ -2069,6 +2069,50 @@
   "Clears the cached search results and station logos.": "清除缓存的搜索结果和电台标志。",
   "To&nbsp;": "目标："
 });
+  // Peppy, Qobuz Connect and troubleshooting content.
+  Object.assign(dict, {
+  "Set the value used for normalizing volume data comming from the FIFO pipe. A lower value will cause the meter needle to appear higher and vice versa for higher values.": "设置用于标准化 FIFO 管道音量数据的数值。数值越低，仪表指针显示越高；数值越高则相反。",
+  "= once per frame.": "= 每帧一次。",
+  "Install": "安装",
+  "Toggle": "切换",
+  "Edit": "编辑",
+  "NOTE:": "注意：",
+  "Max encoded bits/rate. Tracks not available at the selected quality are streamed at the highest quality available for the subscription.": "最大编码位深/采样率。所选音质不可用的曲目，将以订阅允许的最高音质进行流式传输。",
+  "Stream buffer": "音频流缓冲区",
+  "How much audio to buffer before playback starts. A larger buffer can help reduce the likelihood of audio glitches on a slow or poor quality network.": "开始播放前需要缓冲的音频量。较大的缓冲区有助于减少网络速度较慢或质量较差时出现的音频卡顿。",
+  "The initial volume on the client App after it connects.": "客户端应用连接后的初始音量。",
+  "Start playback": "开始播放",
+  "When buffered:": "缓冲完成时：",
+  "Playback starts after the track has been buffered.": "曲目缓冲完成后开始播放。",
+  "After download:": "下载完成后：",
+  "Playback starts after the track has finished downloading.": "曲目下载完成后开始播放。",
+  "Enabled:": "启用：",
+  "Cache tracks. Gapless playback is supported.": "缓存曲目。支持无缝播放。",
+  "Disabled:": "禁用：",
+  "Stream only, do not cache the track. Gapless playback is not supported.": "仅进行流式播放，不缓存曲目。不支持无缝播放。",
+  "Cache size (memory)": "缓存大小（内存）",
+  "The size of the in-memory track cache is based on the amount of physical memory.": "内存中的曲目缓存大小根据物理内存容量确定。",
+  "Number:": "数值：",
+  "Set a specific size for the in-memory track cache.": "为内存中的曲目缓存指定具体大小。",
+  "Gapless playback": "无缝播放",
+  "Play consecutive tracks without a gap of silence between them. Requires the Track cache to be enabled.": "连续播放曲目，中间不插入静音间隔。需要启用曲目缓存。",
+  "ALSA buffer": "ALSA 缓冲区",
+  "Calculate the buffer length based on sample rate of the track.": "根据曲目的采样率计算缓冲区长度。",
+  "Set a specific the buffer length.": "设置指定的缓冲区长度。",
+  "Troubleshooting": "故障排查",
+  "Diagnostic log": "诊断日志",
+  "1. System Config: Turn ON Debug logging.": "1. 系统配置：开启调试日志。",
+  "2. System Config: CLEAR System logs.": "2. 系统配置：清除系统日志。",
+  "3. Renderer Config: RESTART Qobuz Connect.": "3. 音频渲染器配置：重新启动 Qobuz Connect。",
+  "3. Reproduce the issue.": "3. 重现问题。",
+  "4. Click DOWNLOAD. The log file will be in the default Downloads folder.": "4. 点击“下载”。日志文件将保存在默认 Downloads 文件夹中。",
+  "5. Post the file in the Support section of the Moode Forum along with a description of the issue.": "5. 将该文件连同问题描述一起发布到 Moode 论坛的 Support（支持）版块。",
+  "The log file is named": "日志文件名称为",
+  "project for more information.": "，了解更多信息。",
+  "Visit": "访问",
+  "for more information. Requires a Premium account.": "了解更多信息。需要 Premium 账户。",
+  "Maximum wait (seconds)before terminating the parallel search across all enabled providers.": "并行搜索所有已启用服务提供商时，终止搜索前的最长等待时间（秒）。"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
