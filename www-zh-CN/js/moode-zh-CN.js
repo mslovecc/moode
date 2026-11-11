@@ -2310,6 +2310,67 @@
   "Cache is empty": "缓存为空",
   "Turn off": "关闭"
 });
+  // Notification strings are trimmed by the DOM translator; use normalized keys.
+  Object.assign(dict, {
+  "Selected items have been added to the Queue.": "所选项目已添加到播放队列。",
+  "Selected items have been added after clearing the Queue.": "清空播放队列后，已添加所选项目。",
+  "Selected items have been removed.": "所选项目已移除。",
+  "Selected items have been moved.": "所选项目已移动。",
+  "Queue has been cleared.": "播放队列已清空。",
+  "Queue has been cropped.": "播放队列已裁剪。",
+  "Library is being updated... <br><br>Click the busy spinner for status.": "正在更新音乐库……<br><br>点击忙碌状态图标查看进度。",
+  "Library update is already in progress.": "音乐库更新已在进行中。",
+  "Library is loading...": "正在加载音乐库……",
+  "Saving Queue.": "正在保存播放队列。",
+  "Queue has been saved.": "播放队列已保存。",
+  "Playlist name is empty.": "播放列表名称不能为空。",
+  "Invalid playlist name.": "播放列表名称无效。",
+  "Setting Favorites name...": "正在设置收藏夹名称……",
+  "Favorites name has been set.": "收藏夹名称已设置。",
+  "Adding favorite...": "正在添加收藏……",
+  "Favorite has been added.": "已添加到收藏夹。",
+  "Nothing to add.": "没有可添加的项目。",
+  "Items have been added.": "项目已添加。",
+  "Select a playlist.": "请选择播放列表。",
+  "Creating new playlist...": "正在创建播放列表……",
+  "Updating playlist...": "正在更新播放列表……",
+  "Playlist has been created.": "播放列表已创建。",
+  "Playlist has been updated.": "播放列表已更新。",
+  "Playlist has been deleted.": "播放列表已删除。",
+  "Playlist has been imported.": "播放列表已导入。",
+  "Import failed.": "导入失败。",
+  "Validation check.": "正在验证……",
+  "Creating new station...": "正在创建新电台……",
+  "Updating station...": "正在更新电台……",
+  "Station has been created.": "电台已创建。",
+  "Station has been updated.": "电台已更新。",
+  "Station has been deleted.": "电台已删除。",
+  "Name or URL is blank.": "名称或 URL 为空。",
+  "Querying receivers...": "正在查询接收端……",
+  "No receivers were found. Run receiver Discovery.": "未发现接收端。请执行接收端发现。",
+  "Run receiver Discovery.": "请执行接收端发现。",
+  "Turning off receiver...": "正在关闭接收端……",
+  "Discovering receivers...": "正在发现接收端……",
+  "Configuraton update has failed.": "配置更新失败。",
+  "Disconnecting from renderer...": "正在断开与音频渲染器的连接……",
+  "Turning off renderer...": "正在关闭音频渲染器……",
+  "DHCP is required.": "必须使用 DHCP。",
+  "System is restarting...": "系统正在重新启动……",
+  "System is shutting down...": "系统正在关机……",
+  "Connection is being reestablished...": "正在重新建立连接……",
+  "Search fields are empty.": "搜索字段为空。",
+  "Predefined filter is invalid.": "预定义筛选器无效。",
+  "Clock radio has been updated.": "定时播放设置已更新。",
+  "Settings have been updated.": "设置已更新。",
+  "Gathering info...": "正在收集信息……",
+  "Installing plugin...": "正在安装插件……",
+  "Recorder has been installed.": "录音器已安装。",
+  "Recorder has been uninstalled.": "录音器已卸载。",
+  "Recorder plugin is n/a.": "录音器插件不可用。",
+  "Raw recordings have been deleted.": "原始录音已删除。",
+  "No files to tag.": "没有需要添加标签的文件。"
+});
+  var prefixDict = { 'Switching to ': '正在切换到 ' };
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
@@ -2334,8 +2395,18 @@
     var raw = node.nodeValue;
     var trimmed = raw.trim();
     var normalized = trimmed.replace(/\s+/g, ' ');
-    if (!normalized || !Object.prototype.hasOwnProperty.call(dict, normalized)) return;
-    node.nodeValue = raw.replace(trimmed, dict[normalized]);
+    if (!normalized) return;
+    if (Object.prototype.hasOwnProperty.call(dict, normalized)) {
+      node.nodeValue = raw.replace(trimmed, dict[normalized]);
+      return;
+    }
+    var prefixes = Object.keys(prefixDict);
+    for (var i = 0; i < prefixes.length; i++) {
+      if (normalized.indexOf(prefixes[i]) === 0) {
+        node.nodeValue = raw.replace(trimmed, prefixDict[prefixes[i]] + normalized.slice(prefixes[i].length));
+        return;
+      }
+    }
   }
 
   function translateAttr(el, name) {
