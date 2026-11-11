@@ -2261,6 +2261,13 @@
   "This item is located on the ellipsis context menu in Playback view and on the Playbar. It launches a new Browser tab/window and plays whats being output by the MPD HTTP streaming server. The server settings are located on Audio Config.": "此项目位于播放视图和播放栏的省略号上下文菜单中。它会打开新的浏览器标签页/窗口，并播放 MPD HTTP 音频流服务器当前输出的内容。服务器设置位于音频配置页面。",
   "In Playback view clicking the Radio station name or the \"Album - Artist\" text under the cover art switches to Radio or Tag view respectively. In Radio view the list is scrolled to the station. In Tag view the lists are scrolled to the Genre, Artist and Album.": "在播放视图中，点击封面下方的电台名称或“专辑 - 艺术家”文字，可分别切换到电台视图或标签视图。在电台视图中，列表会滚动到对应电台；在标签视图中，列表会滚动到对应流派、艺术家和专辑。"
 });
+  // Final remaining explanatory text from storage, radio and display pages.
+  Object.assign(dict, {
+  "Specify how to break the list into groups separated by a named header. The \"Favorites first\" selection places favorite stations at the top of the list sorted by Name followed by the rest of the stations grouped by sort tag.": "指定如何将列表分组，并使用命名标题分隔。选择“收藏优先”后，收藏电台将按名称排序并置于列表顶部，其余电台则按排序标签分组。",
+  "Delete raw recordings that have not been converted to FLAC and tagged yet. These are the WAV files directly under the Recordings folder. Files that have been previously converted to FLAC and placed in subfolders are not deleted.": "删除尚未转换为 FLAC 并添加标签的原始录音。这些文件是 Recordings 文件夹下的 WAV 文件。此前已转换为 FLAC 并放入子文件夹的文件不会被删除。",
+  "Select an NVMe drive from the list to format. The drive will be formatted as a single EXT4 partition (volume). Since formatting will erase all data on the drive a confirmation dialog will appear after clicking on the FORMAT button.": "从列表中选择要格式化的 NVMe 磁盘。磁盘将被格式化为单个 EXT4 分区（卷）。由于格式化会清除磁盘上的所有数据，点击“格式化”按钮后会出现确认对话框。",
+  "Displays Peppy meter when MPD starts playing (after a configurable timeout). Touching the display switches immediately to the WebUI. If a touch does not occur within the timeout period the display switches back to Peppy.": "MPD 开始播放后，在可配置的超时时间结束时显示 Peppy 仪表。触摸显示屏会立即切换到 WebUI。如果在超时时间内没有触摸操作，显示屏将切换回 Peppy。"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
