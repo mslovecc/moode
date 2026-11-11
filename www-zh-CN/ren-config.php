@@ -1,0 +1,527 @@
+<?php
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+
+require_once __DIR__ . '/inc/alsa.php';
+require_once __DIR__ . '/inc/common.php';
+require_once __DIR__ . '/inc/network.php';
+require_once __DIR__ . '/inc/session.php';
+require_once __DIR__ . '/inc/sql.php';
+
+$dbh = sqlConnect();
+phpSession('open');
+updAlsaVolume($_SESSION['amixname']);
+
+chkVariables($_POST);
+
+// Bluetooth
+if (isset($_POST['update_bt_settings'])) {
+	$currentBtName = $_SESSION['btname'];
+
+	if (isset($_POST['btname']) && $_POST['btname'] != $_SESSION['btname']) {
+		$update = true;
+		phpSession('write', 'btname', $_POST['btname']);
+	}
+	if (isset($_POST['btsvc']) && $_POST['btsvc'] != $_SESSION['btsvc']) {
+		$update = true;
+		phpSession('write', 'btsvc', $_POST['btsvc']);
+	}
+	if (isset($update)) {
+		submitJob('btsvc', '"' . $currentBtName . '" ' . '"' . $_POST['btname'] . '"');
+	}
+}
+if (isset($_POST['btrestart']) && $_POST['btrestart'] == 1 && $_SESSION['btsvc'] == '1') {
+	submitJob('btsvc', '', NOTIFY_TITLE_INFO, NAME_BLUETOOTH . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+if (isset($_POST['update_bt_pairing_confirm']) && isset($_POST['bt_pairing_confirm'])
+		&& $_POST['bt_pairing_confirm'] != $_SESSION['bt_pairing_confirm']) {
+	$_SESSION['bt_pairing_confirm'] = $_POST['bt_pairing_confirm'];
+	$msg = 'Pairing confirmation ' . ($_POST['bt_pairing_confirm'] == '1' ? 'enabled' : 'disabled');
+	submitJob('bt_pairing_confirm', '', NOTIFY_TITLE_INFO, $msg);
+}
+if (isset($_POST['update_alsavolume_max_bt'])) {
+	$_SESSION['alsavolume_max_bt'] = $_POST['alsavolume_max_bt'];
+}
+if (isset($_POST['update_cdspvolume_max_bt'])) {
+	$_SESSION['cdspvolume_max_bt'] = $_POST['cdspvolume_max_bt'];
+}
+if (isset($_POST['update_bt_auto_disconnect']) && $_POST['bt_auto_disconnect'] != $_SESSION['bt_auto_disconnect']) {
+	$_SESSION['bt_auto_disconnect'] = $_POST['bt_auto_disconnect'];
+	submitJob('reset_bt_auto_disconnect', '', NOTIFY_TITLE_INFO, 'Auto-disconnect time updated');
+}
+
+if (isset($_POST['update_rsmafterbt'])) {
+	phpSession('write', 'rsmafterbt', $_POST['rsmafterbt']);
+}
+
+// AirPlay
+if (isset($_POST['install_airplay'])) {
+	submitJob('install_airplay');
+	header('location: ren-status.php');
+}
+if (isset($_POST['update_airplay_settings'])) {
+	if (isset($_POST['airplayname']) && $_POST['airplayname'] != $_SESSION['airplayname']) {
+		$update = true;
+		phpSession('write', 'airplayname', $_POST['airplayname']);
+	}
+	if (isset($_POST['airplaysvc']) && $_POST['airplaysvc'] != $_SESSION['airplaysvc']) {
+		$update = true;
+		phpSession('write', 'airplaysvc', $_POST['airplaysvc']);
+	}
+	if (isset($update)) {
+		submitJob('airplaysvc');
+	}
+}
+if (isset($_POST['update_airplaysvc_type'])) {
+	$_SESSION['airplaysvc_type'] = $_POST['airplaysvc_type'];
+	if ($_SESSION['airplaysvc'] == '1') {
+		$title = NOTIFY_TITLE_INFO;
+		$msg = NAME_AIRPLAY . NOTIFY_MSG_SVC_RESTARTED;
+	} else {
+		$title = '';
+		$msg = '';
+	}
+	submitJob('airplaysvc', '', $title, $msg);
+}
+if (isset($_POST['update_rsmafterapl'])) {
+	phpSession('write', 'rsmafterapl', $_POST['rsmafterapl']);
+}
+if (isset($_POST['airplayrestart']) && $_POST['airplayrestart'] == 1 && $_SESSION['airplaysvc'] == '1') {
+	submitJob('airplaysvc', '', NOTIFY_TITLE_INFO, NAME_AIRPLAY . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+
+// Spotify Connect
+if (isset($_POST['install_spotify'])) {
+	submitJob('install_spotify');
+	header('location: ren-status.php');
+}
+if (isset($_POST['update_spotify_settings'])) {
+	if (isset($_POST['spotifyname']) && $_POST['spotifyname'] != $_SESSION['spotifyname']) {
+		$update = true;
+		phpSession('write', 'spotifyname', $_POST['spotifyname']);
+	}
+	if (isset($_POST['spotifysvc']) && $_POST['spotifysvc'] != $_SESSION['spotifysvc']) {
+		$update = true;
+		phpSession('write', 'spotifysvc', $_POST['spotifysvc']);
+	}
+	if (isset($update)) {
+		submitJob('spotifysvc');
+	}
+}
+if (isset($_POST['update_rsmafterspot'])) {
+	phpSession('write', 'rsmafterspot', $_POST['rsmafterspot']);
+}
+if (isset($_POST['spotifyrestart']) && $_POST['spotifyrestart'] == 1 && $_SESSION['spotifysvc'] == '1') {
+	submitJob('spotifysvc', '', NOTIFY_TITLE_INFO, NAME_SPOTIFY . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+if (isset($_POST['spotify_clear_credentials']) && $_POST['spotify_clear_credentials'] == 1) {
+	submitJob('spotify_clear_credentials', '', NOTIFY_TITLE_INFO, 'Credential cache cleared');
+}
+
+// Spotify Soloist
+if (isset($_POST['install_soloist'])) {
+	submitJob('install_soloist');
+	header('location: ren-status.php');
+}
+if (isset($_POST['update_soloist_settings'])) {
+	if (isset($_POST['soloistname']) && $_POST['soloistname'] != $_SESSION['soloistname']) {
+		$update = true;
+		phpSession('write', 'soloistname', $_POST['soloistname']);
+	}
+	if (isset($_POST['soloistsvc']) && $_POST['soloistsvc'] != $_SESSION['soloistsvc']) {
+		$update = true;
+		phpSession('write', 'soloistsvc', $_POST['soloistsvc']);
+	}
+	if (isset($update)) {
+		submitJob('soloistsvc');
+	}
+}
+if (isset($_POST['update_rsmaftersol'])) {
+	phpSession('write', 'rsmaftersol', $_POST['rsmaftersol']);
+}
+if (isset($_POST['soloistrestart']) && $_POST['soloistrestart'] == 1 && $_SESSION['soloistsvc'] == '1') {
+	submitJob('soloistsvc', '', NOTIFY_TITLE_INFO, NAME_SOLOIST . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+if (isset($_POST['soloist_clear_credentials']) && $_POST['soloist_clear_credentials'] == 1) {
+	submitJob('soloist_clear_credentials', '', NOTIFY_TITLE_INFO, 'Stored session cleared');
+}
+if (isset($_POST['soloist_clear_cache']) && $_POST['soloist_clear_cache'] == 1) {
+	submitJob('soloist_clear_cache', '', NOTIFY_TITLE_INFO, 'Cache cleared');
+	$_soloist_cache_size = '0';
+}
+
+// Qobuz Connect
+if (isset($_POST['install_qobuz'])) {
+	submitJob('install_qobuz');
+	header('location: ren-status.php');
+}
+if (isset($_POST['update_qobuz_settings'])) {
+	if (isset($_POST['qobuzname']) && $_POST['qobuzname'] != $_SESSION['qobuzname']) {
+		$update = true;
+		phpSession('write', 'qobuzname', $_POST['qobuzname']);
+	}
+	if (isset($_POST['qobuzsvc']) && $_POST['qobuzsvc'] != $_SESSION['qobuzsvc']) {
+		$update = true;
+		phpSession('write', 'qobuzsvc', $_POST['qobuzsvc']);
+	}
+	if (isset($update)) {
+		submitJob('qobuzsvc');
+	}
+}
+if (isset($_POST['update_rsmafterqbz'])) {
+	phpSession('write', 'rsmafterqbz', $_POST['rsmafterqbz']);
+}
+if (isset($_POST['qobuzrestart']) && $_POST['qobuzrestart'] == 1 && $_SESSION['qobuzsvc'] == '1') {
+	submitJob('qobuzsvc', '', NOTIFY_TITLE_INFO, NAME_QOBUZ . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+
+// UPnP client for MPD
+if (isset($_POST['update_upnp_settings'])) {
+	$currentUpnpName = $_SESSION['upnpname'];
+	if (isset($_POST['upnpname']) && $_POST['upnpname'] != $_SESSION['upnpname']) {
+		$update = true;
+		phpSession('write', 'upnpname', $_POST['upnpname']);
+	}
+	if (isset($_POST['upnpsvc']) && $_POST['upnpsvc'] != $_SESSION['upnpsvc']) {
+		$update = true;
+		phpSession('write', 'upnpsvc', $_POST['upnpsvc']);
+	}
+	if (isset($update)) {
+		submitJob('upnpsvc', '"' . $currentUpnpName . '" ' . '"' . $_POST['upnpname'] . '"');
+	}
+}
+if (isset($_POST['upnprestart']) && $_POST['upnprestart'] == 1 && $_SESSION['upnpsvc'] == '1') {
+	submitJob('upnpsvc', '', NOTIFY_TITLE_INFO, NAME_UPNP . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+
+// Squeezelite
+if (isset($_POST['update_sl_settings'])) {
+	if (isset($_POST['slsvc']) && $_POST['slsvc'] != $_SESSION['slsvc']) {
+		$update = true;
+		phpSession('write', 'slsvc', $_POST['slsvc']);
+	}
+	if (isset($update)) {
+		if ($_POST['slsvc'] == 0) {
+			phpSession('write', 'rsmaftersl', 'No');
+		}
+		submitJob('slsvc');
+	}
+}
+if (isset($_POST['update_rsmaftersl'])) {
+	phpSession('write', 'rsmaftersl', $_POST['rsmaftersl']);
+}
+if (isset($_POST['slrestart']) && $_POST['slrestart'] == 1) {
+	phpSession('write', 'rsmaftersl', 'No');
+	submitJob('slrestart', '', NOTIFY_TITLE_INFO, NAME_SQUEEZELITE . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+
+// Plexamp
+if (isset($_POST['update_pa_settings'])) {
+	if (isset($_POST['pasvc']) && $_POST['pasvc'] != $_SESSION['pasvc']) {
+		$update = true;
+		phpSession('write', 'pasvc', $_POST['pasvc']);
+	}
+	if (isset($update)) {
+		submitJob('pasvc');
+	}
+}
+if (isset($_POST['update_alsavolume_max_pa'])) {
+	$_SESSION['alsavolume_max_pa'] = $_POST['alsavolume_max_pa'];
+}
+if (isset($_POST['update_rsmafterpa'])) {
+	phpSession('write', 'rsmafterpa', $_POST['rsmafterpa']);
+}
+if (isset($_POST['parestart']) && $_POST['parestart'] == 1) {
+	submitJob('parestart', '', NOTIFY_TITLE_INFO, NAME_PLEXAMP . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+
+// RoonBridge
+if (isset($_POST['update_rb_settings'])) {
+	if (isset($_POST['rbsvc']) && $_POST['rbsvc'] != $_SESSION['rbsvc']) {
+		$update = true;
+		phpSession('write', 'rbsvc', $_POST['rbsvc']);
+	}
+	if (isset($update)) {
+		submitJob('rbsvc');
+	}
+}
+if (isset($_POST['update_rsmafterrb'])) {
+	phpSession('write', 'rsmafterrb', $_POST['rsmafterrb']);
+}
+if (isset($_POST['rbrestart']) && $_POST['rbrestart'] == 1) {
+	submitJob('rbrestart', '', NOTIFY_TITLE_INFO, NAME_ROONBRIDGE . NOTIFY_MSG_SVC_MANUAL_RESTART);
+}
+
+phpSession('close');
+
+// Bluetooth
+$_feat_bluetooth = $_SESSION['feat_bitmask'] & FEAT_BLUETOOTH ? '' : 'hide';
+if ($_SESSION['btsvc'] == '1') {
+	$_bt_btn_disable = '';
+	$_bt_link_disable = '';
+} else {
+	$_bt_btn_disable = 'disabled';
+	$_bt_link_disable = 'onclick="return false;"';
+}
+if ($_SESSION['p3bt'] == '1') {
+	$_bt_adapter_msg = '';
+} else {
+	$_bt_adapter_msg = '<span class="config-help-static">Note: The adapter is turned off in System Config</span>';
+}
+$autoClick = " onchange=\"autoClick('#btn-set-btsvc');\"";
+$_select['btsvc_on']  .= "<input type=\"radio\" name=\"btsvc\" id=\"toggle-btsvc-1\" value=\"1\" " . (($_SESSION['btsvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['btsvc_off'] .= "<input type=\"radio\" name=\"btsvc\" id=\"toggle-btsvc-2\" value=\"0\" " . (($_SESSION['btsvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['btname'] = $_SESSION['btname'];
+$autoClick = " onchange=\"autoClick('#btn-set-btpairconfirm');\"";
+$_select['bt_pairing_confirm_on']  = "<input type=\"radio\" name=\"bt_pairing_confirm\" id=\"toggle-btpairconfirm-1\" value=\"1\" " . (($_SESSION['bt_pairing_confirm'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['bt_pairing_confirm_off'] = "<input type=\"radio\" name=\"bt_pairing_confirm\" id=\"toggle-btpairconfirm-2\" value=\"0\" " . (($_SESSION['bt_pairing_confirm'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+
+if ($_SESSION['alsavolume'] == 'none') {
+	$_alsavolume_max_bt = '';
+	$_alsavolume_max_bt_readonly = 'readonly';
+	$_alsavolume_max_bt_disable = 'disabled';
+	$_alsavolume_max_bt_msg = '<span class="config-msg-static"><i>Hardware volume controller not detected</i></span>';
+} else {
+	$_alsavolume_max_bt = $_SESSION['alsavolume_max_bt'];
+	$_alsavolume_max_bt_readonly = '';
+	$_alsavolume_max_bt_disable = '';
+	$_alsavolume_max_bt_msg = '';
+}
+$_cdspvolume_max_bt = $_SESSION['cdspvolume_max_bt'];
+$_select['bt_auto_disconnect'] .= "<option value=\"never\" " . (($_SESSION['bt_auto_disconnect'] == 'never') ? "selected" : "") . ">Never (Default)</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"10\" " . (($_SESSION['bt_auto_disconnect'] == '10') ? "selected" : "") . ">10 secs</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"20\" " . (($_SESSION['bt_auto_disconnect'] == '20') ? "selected" : "") . ">20 secs</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"30\" " . (($_SESSION['bt_auto_disconnect'] == '30') ? "selected" : "") . ">30 secs</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"60\" " . (($_SESSION['bt_auto_disconnect'] == '60') ? "selected" : "") . ">60 secs</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"90\" " . (($_SESSION['bt_auto_disconnect'] == '90') ? "selected" : "") . ">90 secs</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"120\" " . (($_SESSION['bt_auto_disconnect'] == '120') ? "selected" : "") . ">2 mins</option>\n";
+$_select['bt_auto_disconnect'] .= "<option value=\"300\" " . (($_SESSION['bt_auto_disconnect'] == '300') ? "selected" : "") . ">5 mins</option>\n";
+$autoClick = " onchange=\"autoClick('#btn-set-rsmafterbt');\" " . $_bt_btn_disable;
+$_select['rsmafterbt_on'] .= "<input type=\"radio\" name=\"rsmafterbt\" id=\"toggle-rsmafterbt-1\" value=\"1\" " . (($_SESSION['rsmafterbt'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['rsmafterbt_off']  .= "<input type=\"radio\" name=\"rsmafterbt\" id=\"toggle-rsmafterbt-2\" value=\"0\" " . (($_SESSION['rsmafterbt'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+
+// AirPlay
+$_feat_airplay = $_SESSION['feat_bitmask'] & FEAT_AIRPLAY ? '' : 'hide';
+if (isAirPlayInstalled() === true) {
+	$_airplay_installed_version = sysCmd('dpkg-query --showformat=\'${Version}\n\' --show shairport-sync | grep moode')[0];
+	if (isAirPlayUpgradable() === true) {
+		$_install_airplay_hide = '';
+		$_airplay_btn_text = 'Upgrade';
+		$_airplay_available_version = 'To version ' . sqlQuery("SELECT version FROM cfg_plugin WHERE component='renderer' AND type='airplay'", $dbh)[0]['version'];
+	} else {
+		$_install_airplay_hide = 'hide';
+	}
+	$_airplay_svcbtn_disable = '';
+	$_airplay_editlink_disable = '';
+} else {
+	$_install_airplay_hide = '';
+	$_airplay_btn_text = 'Install';
+	$_airplay_available_version = 'Version ' . sqlQuery("SELECT version FROM cfg_plugin WHERE component='renderer' AND type='airplay'", $dbh)[0]['version'];
+	$_airplay_svcbtn_disable = 'disabled';
+	$_airplay_editlink_disable = 'onclick="return false;"';
+}
+$_SESSION['airplaysvc'] == '1' ? $_airplay_btn_disable = '' : $_airplay_btn_disable = 'disabled';
+$_SESSION['airplaysvc'] == '1' ? $_airplay_link_disable = '' : $_airplay_link_disable = 'onclick="return false;"';
+$autoClick = " onchange=\"autoClick('#btn-set-airplaysvc');\" " . $_airplay_svcbtn_disable;
+$_select['airplaysvc_on']  .= "<input type=\"radio\" name=\"airplaysvc\" id=\"toggle-airplaysvc-1\" value=\"1\" " . (($_SESSION['airplaysvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['airplaysvc_off'] .= "<input type=\"radio\" name=\"airplaysvc\" id=\"toggle-airplaysvc-2\" value=\"0\" " . (($_SESSION['airplaysvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['airplayname'] = $_SESSION['airplayname'];
+$_select['airplaysvc_type'] .= "<option value=\"2\" " . (($_SESSION['airplaysvc_type'] == '2') ? "selected" : "") . ">AirPlay 2 (Default)</option>\n";
+$_select['airplaysvc_type'] .= "<option value=\"1\" " . (($_SESSION['airplaysvc_type'] == '1') ? "selected" : "") . ">AirPlay 1</option>\n";
+$autoClick = " onchange=\"autoClick('#btn-set-rsmafterapl');\" " . $_airplay_btn_disable;
+$_select['rsmafterapl_on'] .= "<input type=\"radio\" name=\"rsmafterapl\" id=\"toggle-rsmafterapl-1\" value=\"Yes\" " . (($_SESSION['rsmafterapl'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['rsmafterapl_off']  .= "<input type=\"radio\" name=\"rsmafterapl\" id=\"toggle-rsmafterapl-2\" value=\"No\" " . (($_SESSION['rsmafterapl'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+
+// Spotify Connect
+$_feat_spotify = $_SESSION['feat_bitmask'] & FEAT_SPOTIFY ? '' : 'hide';
+if (isSpotifyInstalled() === true) {
+	$_spotify_installed_version = sysCmd('dpkg-query --showformat=\'${Version}\n\' --show librespot | grep moode')[0];
+	if (isSpotifyUpgradable() === true) {
+		$_install_spotify_hide = '';
+		$_spotify_btn_text = 'Upgrade';
+		$_spotify_available_version = 'To version ' . sqlQuery("SELECT version FROM cfg_plugin WHERE component='renderer' AND type='spotify-connect'", $dbh)[0]['version'];
+	} else {
+		$_install_spotify_hide = 'hide';
+	}
+	$_spotify_svcbtn_disable = '';
+	$_spotify_editlink_disable = '';
+} else {
+	$_install_spotify_hide = '';
+	$_spotify_btn_text = 'Install';
+	$_spotify_available_version = 'Version ' . sqlQuery("SELECT version FROM cfg_plugin WHERE component='renderer' AND type='spotify-connect'", $dbh)[0]['version'];
+	$_spotify_svcbtn_disable = 'disabled';
+	$_spotify_editlink_disable = 'onclick="return false;"';
+}
+$_SESSION['spotifysvc'] == '1' ? $_spotify_btn_disable = '' : $_spotify_btn_disable = 'disabled';
+$_SESSION['spotifysvc'] == '1' ? $_spotify_link_disable = '' : $_spotify_link_disable = 'onclick="return false;"';
+$autoClick = " onchange=\"autoClick('#btn-set-spotifysvc');\" " . $_spotify_svcbtn_disable;
+$_select['spotifysvc_on']  .= "<input type=\"radio\" name=\"spotifysvc\" id=\"toggle-spotifysvc-1\" value=\"1\" " . (($_SESSION['spotifysvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['spotifysvc_off'] .= "<input type=\"radio\" name=\"spotifysvc\" id=\"toggle-spotifysvc-2\" value=\"0\" " . (($_SESSION['spotifysvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['spotifyname'] = $_SESSION['spotifyname'];
+$autoClick = " onchange=\"autoClick('#btn-set-rsmafterspot');\" " . $_spotify_btn_disable;
+$_select['rsmafterspot_on'] .= "<input type=\"radio\" name=\"rsmafterspot\" id=\"toggle-rsmafterspot-1\" value=\"Yes\" " . (($_SESSION['rsmafterspot'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['rsmafterspot_off']  .= "<input type=\"radio\" name=\"rsmafterspot\" id=\"toggle-rsmafterspot-2\" value=\"No\" " . (($_SESSION['rsmafterspot'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+
+// Spotify Soloist
+$_feat_soloist = $_SESSION['feat_bitmask'] & FEAT_SOLOIST ? '' : 'hide';
+if (isSoloistInstalled() === true) {
+	$_soloist_btn_text = 'Upgrade';
+	$_soloist_btn_text_after = 'To latest version';
+	$_soloist_version_status = 'Installed version ' . soloistVersion() .
+		(isSoloistExpired() === true ? ' expired ' : ' expires ') . soloistExpiryDate() . '<br>';
+	// The service needs an unexpired build and an API key
+	$_soloist_svcbtn_disable = (isSoloistExpired() === false && getSoloistApiKey() !== false) ? '' : 'disabled';
+	$_soloist_apikey_msg = getSoloistApiKey() !== false ? '' :
+		'<span class="config-help-static">Visit ' .
+		'<a href="https://developer.spotify.com/documentation/soloist/tutorials/getting-started" class="target-blank-link" target="_blank">Spotify for Developers</a> ' .
+		'to generate an API key. Login with your Spotify Premium account credentials. Copy the key then click the EDIT button below to enter the key and enable the service.</span>';
+	$_soloist_editbtn_disable = '';
+	$_soloist_editlink_disable = '';
+} else {
+	$_soloist_btn_text = 'Install';
+	$_soloist_btn_text_after = 'Latest version';
+	$_soloist_version_status = '';
+	$_soloist_svcbtn_disable = 'disabled';
+	$_soloist_apikey_msg = '';
+	$_soloist_editbtn_disable = 'disabled';
+	$_soloist_editlink_disable = 'onclick="return false;"';
+}
+if ($_SESSION['soloistsvc'] == '1') {
+	$_soloist_btn_disable = '';
+	$_soloist_link_disable = '';
+} else {
+	$_soloist_btn_disable = 'disabled';
+	$_soloist_link_disable = 'onclick="return false;"';
+}
+$autoClick = " onchange=\"autoClick('#btn-set-soloistsvc');\" " . $_soloist_svcbtn_disable;
+$_select['soloistsvc_on']  .= "<input type=\"radio\" name=\"soloistsvc\" id=\"toggle-soloistsvc-1\" value=\"1\" " . (($_SESSION['soloistsvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['soloistsvc_off'] .= "<input type=\"radio\" name=\"soloistsvc\" id=\"toggle-soloistsvc-2\" value=\"0\" " . (($_SESSION['soloistsvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['soloistname'] = $_SESSION['soloistname'];
+$autoClick = " onchange=\"autoClick('#btn-set-rsmaftersol');\" " . $_soloist_btn_disable;
+$_select['rsmaftersol_on'] .= "<input type=\"radio\" name=\"rsmaftersol\" id=\"toggle-rsmaftersol-1\" value=\"Yes\" " . (($_SESSION['rsmaftersol'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['rsmaftersol_off']  .= "<input type=\"radio\" name=\"rsmaftersol\" id=\"toggle-rsmaftersol-2\" value=\"No\" " . (($_SESSION['rsmaftersol'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+if (file_exists(SOLOIST_CACHE_DIR . '/cache')) {
+	$_soloist_cache_size = explode("\t", sysCmd('du -sh ' . SOLOIST_CACHE_DIR . '/cache')[0])[0];
+} else {
+	$_soloist_cache_size = '0';
+}
+
+// Qobuz Connect
+$_feat_qobuz = $_SESSION['feat_bitmask'] & FEAT_QOBUZ ? '' : 'hide';
+if (isQobuzInstalled() === true) {
+	$_qobuz_installed_version = sysCmd('dpkg-query --showformat=\'${Version}\n\' --show pibuz | grep moode')[0];
+	if (isQobuzUpgradable() === true) {
+		$_install_qobuz_hide = '';
+		$_qobuz_btn_text = 'Upgrade';
+		$_qobuz_available_version = 'To version ' . sqlQuery("SELECT version FROM cfg_plugin WHERE component='renderer' AND type='qobuz-connect'", $dbh)[0]['version'];
+	} else {
+		$_install_qobuz_hide = 'hide';
+	}
+	$_qobuz_svcbtn_disable = '';
+	$_qobuz_editlink_disable = '';
+} else {
+	$_install_qobuz_hide = '';
+	$_qobuz_btn_text = 'Install';
+	$_qobuz_available_version = 'Version ' . sqlQuery("SELECT version FROM cfg_plugin WHERE component='renderer' AND type='qobuz-connect'", $dbh)[0]['version'];
+	$_qobuz_svcbtn_disable = 'disabled';
+	$_qobuz_editlink_disable = 'onclick="return false;"';
+}
+
+$_SESSION['qobuzsvc'] == '1' ? $_qobuz_btn_disable = '' : $_qobuz_btn_disable = 'disabled';
+$_SESSION['qobuzsvc'] == '1' ? $_qobuz_link_disable = '' : $_qobuz_link_disable = 'onclick="return false;"';
+$autoClick = " onchange=\"autoClick('#btn-set-qobuzsvc');\" " . $_qobuz_svcbtn_disable;
+$_select['qobuzsvc_on']  .= "<input type=\"radio\" name=\"qobuzsvc\" id=\"toggle-qobuzsvc-1\" value=\"1\" " . (($_SESSION['qobuzsvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['qobuzsvc_off'] .= "<input type=\"radio\" name=\"qobuzsvc\" id=\"toggle-qobuzsvc-2\" value=\"0\" " . (($_SESSION['qobuzsvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['qobuzname'] = $_SESSION['qobuzname'];
+$autoClick = " onchange=\"autoClick('#btn-set-rsmafterqbz');\" " . $_qobuz_btn_disable;
+$_select['rsmafterqbz_on'] .= "<input type=\"radio\" name=\"rsmafterqbz\" id=\"toggle-rsmafterqbz-1\" value=\"Yes\" " . (($_SESSION['rsmafterqbz'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['rsmafterqbz_off']  .= "<input type=\"radio\" name=\"rsmafterqbz\" id=\"toggle-rsmafterqbz-2\" value=\"No\" " . (($_SESSION['rsmafterqbz'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+
+// UPnP client for MPD
+$_feat_upmpdcli = $_SESSION['feat_bitmask'] & FEAT_UPMPDCLI ? '' : 'hide';
+$_SESSION['upnpsvc'] == '1' ? $_upnp_btn_disable = '' : $_upnp_btn_disable = 'disabled';
+$_SESSION['upnpsvc'] == '1' ? $_upnp_link_disable = '' : $_upnp_link_disable = 'onclick="return false;"';
+$_SESSION['dlnasvc'] == '1' ? $_dlna_btn_disable = '' : $_dlna_btn_disable = 'disabled';
+$_SESSION['dlnasvc'] == '1' ? $_dlna_link_disable = '' : $_dlna_link_disable = 'onclick="return false;"';
+$autoClick = " onchange=\"autoClick('#btn-set-upnpsvc');\"";
+$_select['upnpsvc_on']  .= "<input type=\"radio\" name=\"upnpsvc\" id=\"toggle-upnpsvc-1\" value=\"1\" " . (($_SESSION['upnpsvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['upnpsvc_off'] .= "<input type=\"radio\" name=\"upnpsvc\" id=\"toggle-upnpsvc-2\" value=\"0\" " . (($_SESSION['upnpsvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['upnpname'] = $_SESSION['upnpname'];
+
+// Squeezelite
+$_feat_squeezelite = $_SESSION['feat_bitmask'] & FEAT_SQUEEZELITE ? '' : 'hide';
+$_SESSION['slsvc'] == '1' ? $_sl_btn_disable = '' : $_sl_btn_disable = 'disabled';
+$_SESSION['slsvc'] == '1' ? $_sl_link_disable = '' : $_sl_link_disable = 'onclick="return false;"';
+$autoClick = " onchange=\"autoClick('#btn-set-slsvc');\"";
+$_select['slsvc_on']  .= "<input type=\"radio\" name=\"slsvc\" id=\"toggle-slsvc-1\" value=\"1\" " . (($_SESSION['slsvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['slsvc_off'] .= "<input type=\"radio\" name=\"slsvc\" id=\"toggle-slsvc-2\" value=\"0\" " . (($_SESSION['slsvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$autoClick = " onchange=\"autoClick('#btn-set-rsmaftersl');\" " . $_sl_btn_disable;
+$_select['rsmaftersl_on'] .= "<input type=\"radio\" name=\"rsmaftersl\" id=\"toggle-rsmaftersl-1\" value=\"Yes\" " . (($_SESSION['rsmaftersl'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+$_select['rsmaftersl_off']  .= "<input type=\"radio\" name=\"rsmaftersl\" id=\"toggle-rsmaftersl-2\" value=\"No\" " . (($_SESSION['rsmaftersl'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+
+// Plexamp
+if (($_SESSION['feat_bitmask'] & FEAT_PLEXAMP)) {
+	$_feat_plexamp = '';
+	if ($_SESSION['plexamp_installed'] == 'yes') {
+		$_pa_svcbtn_disable = '';
+		$_pa_not_installed_msg = 'hide';
+	} else {
+		$_pa_svcbtn_disable = 'disabled';
+		$_pa_not_installed_msg = '';
+	}
+	$_SESSION['pasvc'] == '1' ? $_pa_btn_disable = '' : $_pa_btn_disable = 'disabled';
+	$_SESSION['pasvc'] == '1' ? $_pa_link_disable = '' : $_pa_link_disable = 'onclick="return false;"';
+	$autoClick = " onchange=\"autoClick('#btn-set-pasvc');\" " . $_pa_svcbtn_disable;
+	$_select['pasvc_on']  .= "<input type=\"radio\" name=\"pasvc\" id=\"toggle-pasvc-1\" value=\"1\" " . (($_SESSION['pasvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+	$_select['pasvc_off'] .= "<input type=\"radio\" name=\"pasvc\" id=\"toggle-pasvc-2\" value=\"0\" " . (($_SESSION['pasvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+	if ($_SESSION['alsavolume'] == 'none') {
+		$_alsavolume_max_pa = '';
+		$_alsavolume_max_pa_readonly = 'readonly';
+		$_alsavolume_max_pa_disable = 'disabled';
+		$_alsavolume_max_pa_msg = '<span class="config-msg-static"><i>Hardware volume controller not detected</i></span>';
+	} else {
+		$_alsavolume_max_pa = $_SESSION['alsavolume_max_pa'];
+		$_alsavolume_max_pa_readonly = '';
+		$_alsavolume_max_pa_disable = '';
+		$_alsavolume_max_pa_msg = '';
+	}
+	$autoClick = " onchange=\"autoClick('#btn-set-rsmafterpa');\" " . $_pa_btn_disable;
+	$_select['rsmafterpa_on'] .= "<input type=\"radio\" name=\"rsmafterpa\" id=\"toggle-rsmafterpa-1\" value=\"Yes\" " . (($_SESSION['rsmafterpa'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+	$_select['rsmafterpa_off']  .= "<input type=\"radio\" name=\"rsmafterpa\" id=\"toggle-rsmafterpa-2\" value=\"No\" " . (($_SESSION['rsmafterpa'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+} else {
+	$_feat_plexamp = 'hide';
+}
+
+// RoonBridge
+if (($_SESSION['feat_bitmask'] & FEAT_ROONBRIDGE)) {
+	$_feat_roonbridge = '';
+	if ($_SESSION['roonbridge_installed'] == 'yes') {
+		$_rb_svcbtn_disable = '';
+		$_rb_not_installed_msg = 'hide';
+	} else {
+		$_rb_svcbtn_disable = 'disabled';
+		$_rb_not_installed_msg = '';
+	}
+	$_SESSION['rbsvc'] == '1' ? $_rb_btn_disable = '' : $_rb_btn_disable = 'disabled';
+	$_SESSION['rbsvc'] == '1' ? $_rb_link_disable = '' : $_rb_link_disable = 'onclick="return false;"';
+	$autoClick = " onchange=\"autoClick('#btn-set-rbsvc');\" " . $_rb_svcbtn_disable;
+	$_select['rbsvc_on']  .= "<input type=\"radio\" name=\"rbsvc\" id=\"toggle-rbsvc-1\" value=\"1\" " . (($_SESSION['rbsvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+	$_select['rbsvc_off'] .= "<input type=\"radio\" name=\"rbsvc\" id=\"toggle-rbsvc-2\" value=\"0\" " . (($_SESSION['rbsvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+	$autoClick = " onchange=\"autoClick('#btn-set-rsmafterrb');\" " . $_rb_btn_disable;
+	$_select['rsmafterrb_on'] .= "<input type=\"radio\" name=\"rsmafterrb\" id=\"toggle-rsmafterrb-1\" value=\"Yes\" " . (($_SESSION['rsmafterrb'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+	$_select['rsmafterrb_off']  .= "<input type=\"radio\" name=\"rsmafterrb\" id=\"toggle-rsmafterrb-2\" value=\"No\" " . (($_SESSION['rsmafterrb'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
+} else {
+	$_feat_roonbridge = 'hide';
+}
+
+waitWorker('ren-config');
+
+$tpl = "ren-config.html";
+$section = basename(__FILE__, '.php');
+storeBackLink($section, $tpl);
+
+include('header.php');
+eval("echoTemplate(\"" . getTemplate("templates/$tpl") . "\");");
+include('footer.php');

@@ -1,0 +1,234 @@
+################################################################################
+#
+#  Configuration Guide for moOde HTTPS mode
+#
+#  Version: 2.0 2025-03-03
+#
+#  (C) Tim Curtis       2023 https://moodeaudio.org
+#  (C) @the_betrum      2025 https://moodeaudio.org/forum
+#  (C) @TheOldPresbyope 2025 https://moodeaudio.org/forum
+#
+################################################################################
+
+OVERVIEW
+
+HTTPS mode is an experimental feature in moOde System Config that enables secure
+communication between the Browser and moOde/NGINX web server through use of an
+automatically or manually generated Security Certificate [Cert].
+
+Automatically Generated Cert (Self-Signed)
+
+This type of Cert is automatically created and installed into NGINX web server
+when HTTPS mode is turned on. The Cert can be downloaded via the DOWNLOAD button
+or Browser Export option and then a manual procedure is required to import the
+Cert into the client Operating System (OS) Certificate Store. After this is done
+the Browser will be able to establish secure HTTPS communication with moOde.
+
+Manually Generated Cert
+
+This type of Cert is manually created and can be self-signed or signed by a
+local Certificate Authority (CA) then manually installed into NGINX web server
+via the UPLOAD and INSTALL buttons. A second manual procedure is used to import
+the Cert into the client OS Certificate Store. After this is done the Browser
+will be able to establish secure HTTPS communication with moOde.
+
+CONFIGURING HTTPS MODE
+
+Below is the procedure for configuring HTTPS mode. The steps to install the Cert
+into the client OS Certificate Store vary depending on the OS.
+
+First, open moOde on a desktop OS.
+
+HTTPS Mode: ON
+
+    1. Open System Config and scroll to the Security section
+    2. Set the Certificate type to "Automatic"
+    3. Turn HTTPS mode ON
+    4. DOWNLOAD the Cert (it will be a .cer file)
+    5. Install the downloaded Cert into the client OS Certificate Store and set
+       its trust policy to "Always trust" (this terminology varies depending on
+       the OS)
+    6. Reboot moOde
+    7. Refresh the Browser and a secure HTTPS connection should be established
+
+HTTPS Mode: OFF
+
+    1. Open System Config and scroll to the Security section
+    2. Turn HTTPS mode OFF
+    3. Reboot
+    4. Open http://moode
+    5. A non-secure HTTP connection should be established
+    6. You may need to clear the Browser cache
+
+Changing the host name
+
+If the host name is changed via System Config while HTTPS Mode is ON and the
+Certificate type was set to "Automatic" a new self-signed Cert will be generated
+automatically and installed into NGINX web server during startup after reboot.
+
+    1. Refresh the Browser
+    2. Click the browser "Security warning" badge to view the Cert
+    3. Navigate to an option that offers an "Export" button
+    4. Click the Export button
+    5. Select DER encoding format
+    6. Export/Download the Cert
+    7. Install the Cert into the client OS Certificate Store and set its trust
+       policy to "Always trust"
+
+INSTALLING THE CERT INTO DESKTOP AND MOBILE OPERATING SYSTEMS
+
+MACOS
+
+    1. Double click the Cert
+    2. Auto-opens the Keychain Access app
+    3. Install the Cert into the System store
+    4. Double click the installed Cert
+    5. Set its trust policy to "Always trust"
+    6. Done
+
+WINDOWS
+
+Add the Certificates Snap-in
+
+    1. Open the “Microsoft Management Console” by using the Windows + R keyboard
+       combination, typing "mmc" and clicking Open
+    2. Go to File > Add/Remove Snap-in
+    3. Click Certificates then click Add
+    4. Select Computer Account and click Next
+    5. Select Local Computer then click Finish
+    6. Click OK to go back to the MMC window
+
+Add the Cert
+
+    1. Double-click Certificates (local computer) to expand the view
+    2. Select Trusted Root Certification Authorities
+    3. Right-click on Certificates in the middle column under “Object Type” then
+       select All Tasks then Import
+    4. Click Next then Browse
+    5. Change the certificate extension dropdown next to the filename field to
+       All Files (*.*) and locate the moOde Cert file
+    6. Click Open then Next then "Place all certificates in the following store"
+       > "Trusted Root Certification Authorities store"
+    7. Click Next then click Finish to complete the wizard
+    8. If everything worked, you should see the moOde Cert listed under Trusted
+       Root Certification Authorities > Certificates
+
+LINUX
+
+    1. DOWNLOAD the Cert (it will be a .cer file)
+    2. Convert the .cer file to a .crt file
+       openssl x509 -inform DER -outform PEM -in ./moode.local.cer -out ./moode.local.crt
+    3. Copy the .crt file to the local staging directory used by update-ca-certificates
+       sudo cp moode.local.crt /usr/local/share/ca-certificates/
+    4. Update the certificate store
+       sudo update-ca-certificates
+
+ANDROID
+
+    1. First, attach the Cert to an Email
+    2. Open the Email on Android and download the attached Cert
+    3. Open Settings > Security and privacy > More security and privacy >
+       Encryption and credentials
+    4. Select "Install a certificate", then choose "CA certificate"
+    5. A warning will appear stating "the certificate owner could see your
+       encrypted data"
+    6. Accept the warning by selecting "Install anyway"
+    7. Navigate to where you stored the certificate from step 2, select it and
+       choose "Install"
+
+IOS
+
+    1. First, attach the Cert to an Email
+    2. Open the Email on IOS
+    3. Click the "Cert icon and text" to download the Profile, don't click the
+       Download button
+    4. Open Settings > General > VPN and Device Management
+    5. Under DOWNLOADED PROFILE, click the profile then click Install
+    6. Open Settings > General > About > Certificate Trust Settings
+    7. Click the slider to trust the Cert
+
+INSTALLING THE CERT INTO BROWSERS
+
+Some Web Browsers maintain their own lists of trusted root certificates. Follow
+these instructions if your connection is still not trusted.
+
+Firefox desktop
+
+    1. Open Settings > Privacy and Security
+    2. Scroll to "Certificates" and click the View Certificates button
+    3. Select the Authorities tab and click Import
+    4. Select the Cert file and click Open
+    5. Select "Use for validating websites"
+    6. Click OK
+
+Chromium desktop (and derivatives like Chrome, Opera, Vivaldi, etc)
+
+    1. Open Settings > Privacy and Security
+    2. Select Security, scroll to Manage Certificates then click it
+    3. If the Authorities tab exists click it then click Import
+       a. Select the Cert file and click Open
+       b. Select "Use for validating websites"
+       c. Click OK
+    4. If the Authorities tab does not exist verify that the cert you added to
+       the OS is listed as Imported.
+
+Firefox Android
+
+    1. Open the Firefox browser on your phone
+    2. From the three dot menu, choose "About"
+    3. Tap the Firefox logo five times to enable the "Debug Menu"
+    4. Tap the back arrow and scroll down to "Secret Settings"
+    5. Scroll down to "Trust Third Party CA's"
+    6. Tap the toggle button to enable it
+
+################################################################################
+#
+# DEVELOPER INFORMATION
+#
+################################################################################
+
+The software components for the HTTPS mode feature are listed below.
+
+PHP SESSION VARS
+
+nginx_https_only
+nginx_cert_type
+nginx_hsts_policy
+
+NGINX FILES
+
+/etc/nginx/ssl.conf
+/etc/nginx/dhparams.pem
+/etc/nginx/sites/available/moode-http.conf
+/etc/nginx/sites/available/moode-https.conf
+
+MOODE FILES
+
+/var/www/sys-config.php
+/var/www/templates/sys-config.html
+/var/www/daemon/worker.php
+/var/www/util/gen-cert.sh
+/var/www/setup_https.txt
+
+AUTOMATICALLY GENERATED CERT (SELF-SIGNED)
+
+Generated by:
+/var/www/util/gen-cert.sh
+
+Certificate files:
+/etc/ssl/certs/moode.crt
+/etc/ssl/private/moode.key
+
+Certificate attribute summary:
+Bits            = 2048
+Common name     = $HOSTNAME.local
+Constraints     = critical, CA:TRUE
+Key usage       = digitalSignature, keyEncipherment, nonRepudiation
+Key usage ext   = clientAuth, serverAuth
+DNS.1           = $HOSTNAME.local
+DNS.2           = $HOSTNAME
+IP.1            = 172.24.1.1 (Hotspot default address)
+
+################################################################################
+#  Post questions regarding this guide to https://moodeaudio.org/forum
+################################################################################

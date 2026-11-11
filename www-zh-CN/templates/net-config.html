@@ -1,0 +1,260 @@
+<!--
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+-->
+<div id="container">
+<div class="container">
+	<h1 class="net-config">Network</h1>
+
+    <form class="form-horizontal" action="" method="post">
+		<legend>Ethernet
+			<button class="legend-config btn btn-medium btn-primary btn-submit" type="submit" name="save" value="1">Save</button>
+		</legend>
+		<p class="sub-legend">
+			Ethernet wired connections provide maximum performance and reliability and are generally immune from most types of electrical and radio frequency interferrence typically found in environments where residential Routers and network switches are located.
+		</p>
+
+		<div class="control-group" >
+			<label class="control-label" for="eth0method">Address method</label>
+			<div class="controls">
+				<select id="eth0method" name="eth0method" class="config-select-large">
+					$_eth0method
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-eth0method" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span class="config-help-static">
+					$_eth0currentip
+				</span>
+				<span id="info-eth0method" class="config-help-info">
+                	IP address assignment method.
+                </span>
+			</div>
+
+			<div id="eth0-static-section" class="class=control-group hide">
+				<label class="control-label" for="eth0ip">Address</label>
+				<div class="controls">
+					<input class="config-input-large" type="text" id="eth0ip" name="eth0ipaddr" value="$_eth0ipaddr">
+				</div>
+
+				<label class="control-label" for="eth0-netmask">Netmask</label>
+				<div class="controls">
+					<select id="eth0-netmask" name="eth0netmask" class="config-select-large">
+						$_eth0netmask
+					</select>
+				</div>
+
+				<label class="control-label" for="eth0gateway">Gateway</label>
+				<div class="controls">
+					<input class="config-input-large" type="text" id="eth0gateway" name="eth0gateway" value="$_eth0gateway">
+				</div>
+
+				<label class="control-label" for="eth0pridns">Primary DNS</label>
+				<div class="controls">
+					<input class="config-input-large" type="text" id="eth0pridns" name="eth0pridns" value="$_eth0pridns">
+				</div>
+
+				<label class="control-label" for="eth0secdns">Secondary DNS</label>
+				<div class="controls">
+					<input class="config-input-large" type="text" id="eth0secdns" name="eth0secdns" value="$_eth0secdns">
+				</div>
+			</div>
+		</div>
+
+		<legend>Wireless
+			<button class="legend-config btn btn-medium btn-primary btn-submit" type="submit" name="save" value="1">Save</button>
+		</legend>
+		<p class="sub-legend">
+			Wireless networks on the 5Ghz band generally perform better than those on the 2.4GHz band due to less congestion and interferrence from other networks.
+		</p>
+
+		<div class="control-group" >
+			<label class="control-label" for="wlan0method">Address method</label>
+			<div class="controls">
+				<select id="wlan0method" name="wlan0method" class="config-select-large">
+					$_wlan0method
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wlan0method" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span class="config-help-static">
+					$_wlan0stats
+				</span>
+				<span id="info-wlan0method" class="config-help-info">
+                	IP address assignment method, connected SSID, link quality and signal level.
+                </span>
+			</div>
+
+			<label class="control-label" for="wlan0ssid">Network SSID</label>
+			<div class="controls">
+				<select id="wlan0ssid" name="wlan0ssid" class="config-select-large">
+					$_wlan0ssid
+				</select>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="scan" value="1">Scan</button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wlan0ssid" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-wlan0ssid" class="config-help-info">
+					SCAN generates a list of available networks.
+                </span>
+			</div>
+
+			<label class="control-label" for="wlan0security">Security</label>
+			<div class="controls">
+				<select id="wlan0security" name="wlan0security" class="config-select-large">
+					$_wlan0security
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wlan0security" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="wpa3-sae-msg" class="config-help-static hide">
+					<em>For WPA3-SAE a password must be entered before saving.</em>
+				</span>
+				<span id="info-wlan0security" class="config-help-info">
+					<b>WPA2-PSK:</b> The default protocol supporting WPA/WPA2 and WPA2-WPA3 Mixed.<br>
+					<b>WPA3-SAE:</b> Select this if the network is running only WPA3-SAE.<br>
+					<b>None:</b> Select this if the network is an Open Network with no security.
+                </span>
+			</div>
+
+			<label class="control-label" for="wlan0pwd">Password</label>
+			<div class="controls">
+				<input class="config-input-large" type="password" pattern=".{8,64}" id="wlan0pwd" name="wlan0pwd" value="$_wlan0pwd">
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wlan0pwd" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<a class="show-hide-password $_show_hide_password_icon_hide" href="#notarget" data-id="wlan0pwd"><i class="fa-regular fa-sharp fa-eye"></i></a>
+				<span id="info-wlan0pwd" class="config-help-info">
+                	Length 8-63 characters.<br>
+					<b>WPA2-PSK:</b> The password is converted to a pre-shared key (PSK) after saving.<br>
+					<b>WPA3-SAE:</b> The password is plaintext after saving but will not appear in the Browser.
+                </span>
+			</div>
+
+			<label class="control-label" for="wlan0country">Country</label>
+			<div class="controls">
+				<select id="wlan0country" name="wlan0country" class="config-select-large">
+					$_wlan0country
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wlan0country" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-wlan0country" class="config-help-info">
+					The country code determines what frequency bands are available.
+                </span>
+			</div>
+
+			<div class="controls">
+				<a data-toggle="modal" href="#manual-ssid"><button class="btn btn-medium btn-primary config-btn">Enter</button></a>
+				<span class="config-btn-after">SSID manually</span>
+			</div>
+
+			<div class="controls">
+				<a data-toggle="modal" href="#manage-saved-networks"><button class="btn btn-medium btn-primary config-btn">Manage</button></a>
+				<span class="config-btn-after">Saved networks</span>
+			</div>
+		</div>
+
+		<div id="wlan0-static-section" class="control-group hide">
+			<label class="control-label" for="wlan0ipaddr">Address</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="wlan0ipaddr" name="wlan0ipaddr" value="$_wlan0ipaddr">
+			</div>
+
+			<label class="control-label" for="wlan0netmask">Netmask</label>
+			<div class="controls">
+				<select id="wlan0netmask" name="wlan0netmask" class="config-select-large">
+					$_wlan0netmask
+				</select>
+			</div>
+
+			<label class="control-label" for="wlan0gateway">Gateway</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="wlan0gateway" name="wlan0gateway" value="$_wlan0gateway">
+			</div>
+
+			<label class="control-label" for="wlan0pridns">Primary DNS</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="wlan0pridns" name="wlan0pridns" value="$_wlan0pridns">
+			</div>
+
+			<label class="control-label" for="wlan0secdns">Secondary DNS</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="wlan0secdns" name="wlan0secdns" value="$_wlan0secdns">
+			</div>
+		</div>
+
+		<legend>Hotspot
+			<button class="legend-config btn btn-medium btn-primary btn-submit" type="submit" name="save" value="1">Save</button>
+		</legend>
+		<p class="sub-legend">
+			The Hotspot provides a 2.4 GHz WiFi network bridged to an Ethernet connection if one is present.<br>
+			Address: <b>$_ap_host</b> or <b>$_ap_network</b>
+		</p>
+
+		<div class="control-group">
+	        <label class="control-label" for="apdssid">Hotspot SSID</label>
+	        <div class="controls">
+	            <input class="config-input-large" type="text" pattern="[A-Za-z0-9\-]{3,32}" id="apdssid" name="wlan0apdssid" value="$_wlan0apdssid" required>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-apdssid" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-apdssid" class="config-help-info">
+					Length 3-32 characters, A-Z, a-z, 0-9, and hyphen are allowed.
+				</span>
+	        </div>
+
+            <label class="control-label" for="apdpwd">Password</label>
+            <div class="controls">
+                <input class="config-input-large" type="password" pattern=".{8,64}" id="apdpwd" name="wlan0apdpwd" value="$_wlan0apdpwd">
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-apdpwd" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<a class="show-hide-password $_show_hide_password_icon_hide" href="#notarget" data-id="apdpwd"><i class="fa-regular fa-sharp fa-eye"></i></a>
+				<span id="info-apdpwd" class="config-help-info">
+					Length 8-63 characters. The password will be converted to a pre-shared key (PSK) after saving.
+				</span>
+            </div>
+
+			<label class="control-label" for="apdproto">Protocol</label>
+			<div class="controls">
+				<select id="apdproto" name="wlan0apdproto" class="config-select-large">
+					$_wlan0apdproto
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wlan0apdproto" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-wlan0apdproto" class="config-help-info">
+					The default protocol is RSN (Robust Secure Network) which works for most network adapters.<br>
+					Some adapters including the integrated adapter on Pi-3B require WPA protocol for AP mode.
+                </span>
+			</div>
+        </div>
+	</form>
+</div>
+</div>
+
+<form class="form-horizontal" method="post">
+	<div id="manual-ssid" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="manual-ssid-label" aria-hidden="true">
+		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Manual SSID entry</h3>
+		</div>
+		<div class="modal-body">
+			<div class="control-group">
+				<label class="control-label" for="wlan0otherssid">SSID</label>
+				<div class="controls">
+					<input class="config-input-large config-modal-input" type="text" pattern="[A-Za-z0-9\-_ .@]{3,32}" id="wlan0otherssid" name="wlan0otherssid" value="" autofocus>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-manualssid" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-manualssid" class="config-help-info">
+                    	Length 3-32 characters, A-Z, a-z, 0-9, space, period, at sign, underscore and hyphen are allowed.
+                    </span>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Cancel</button>
+			<button class="btn btn-primary btn-submit" type="submit" name="manualssid" value="1">Ok</button>
+		</div>
+	</div>
+</form>
+
+<form class="form-horizontal" method="post">
+	<div id="manage-saved-networks" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="manage-saved-networks-label" aria-hidden="true">
+		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Manage saved networks</h3>
+		</div>
+		<div class="modal-body">
+			<div class="form-horizontal">
+				$_saved_networks
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Cancel</button>
+			<button class="btn btn-primary btn-submit" type="submit" name="update-saved-networks" value="1">Update</button>
+		</div>
+	</div>
+</form>

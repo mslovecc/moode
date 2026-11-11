@@ -1,0 +1,37 @@
+<!--
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+-->
+<div>
+	<div id="dashboard-toolbar">
+		<div class="btn-toolbar dashboard-toolbar-row">
+			<div class="btn-group">
+				<button aria-label="Discover" class="btn btn-cmd dashboard-cmd" data-cmd="discover_players"><i class="fa-solid fa-sharp fa-magnifying-glass"></i><span>Discover</span></button>
+				<button id="dashboard-check-uncheck-all" aria-label="Select all" class="btn btn-cmd"><i class="fa-regular fa-sharp fa-square-check"></i><span>Select all</span></button>
+				<button aria-label="Remove" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel dashboard-cmd-confirm $_ctl_hide" data-cmd="remove_players" disabled><i class="fa-regular fa-sharp fa-trash"></i><span>Remove</span></button>
+
+				<button aria-label="Restart" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel dashboard-cmd-confirm" data-cmd="reboot" disabled><i class="dashboard-red-icon fa-solid fa-sharp fa-power-off"></i><span>Restart</span></button>
+				<button aria-label="Shutdown" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel dashboard-cmd-confirm" data-cmd="poweroff" disabled><i class="dashboard-red-icon fa-solid fa-sharp fa-power-off"></i><span>Shutdown</span></button>
+
+				<button aria-label="Update library" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="update_library" disabled><i class="fa-solid fa-sharp fa-sync"></i><span>Update library</span></button>
+				<button aria-label="Regen thumbnails" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="regen_thmcache" disabled><i class="fa-solid fa-sharp fa-file-image"></i><span>Regen Thumbs</span></button>
+				<button aria-label="Refresh screen" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="refresh_screen" disabled><i class="fa-solid fa-sharp fa-redo"></i><span>Refresh screen</span></button>
+
+				<button aria-label="Play" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="play" disabled><i class="fa-solid fa-sharp fa-play"></i><span>Play</span></button>
+				<button aria-label="Pause" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="pause" disabled><i class="fa-solid fa-sharp fa-pause"></i><span>Pause</span></button>
+				<button aria-label="Previous" class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="prev" disabled><i class="fa-solid fa-sharp fa-step-backward"></i><span>Prev</span></button>
+				<button aria-label="Next" style="border:none;"class="btn btn-cmd dashboard-cmd dashboard-cmd-sel" data-cmd="next" disabled><i class="fa-solid fa-sharp fa-step-forward"></i><span>Next</span></button>
+			</div>
+		</div>
+
+		<span id="dashboard-submit-confirmed" class="modal-btn-after"></span>
+	</div>
+
+	<div id="dashboard">
+		<ul id="dashboard-ul">
+			$_players
+		</ul>
+	</div>
+</div>

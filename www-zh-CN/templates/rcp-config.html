@@ -1,0 +1,221 @@
+<!--
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+-->
+<div id="container">
+<div class="container">
+	<h1 class="per-config">Radio Cover+ Config</h1>
+
+	<p class="config-help-header">
+		Radio Cover+ provides advanced search and analysis that greatly increases the probability of finding
+		the correct cover art for the currently playing track. The implementation thats included is a Command
+		Line Interface (CLI) port of the moOde-radio-plus (MR+) daemon.
+		Visit the <a href="https://github.com/frantale70-lgtm/moOde-radio-plus/tree/main#-english" class="target-blank-link" target="_blank">
+		moOde-radio-plus (MR+)</a> project for more information.
+	</p>
+
+    <form class="form-horizontal" action="" method="post">
+    	<legend>Settings
+			<button class="legend-config btn btn-medium btn-primary btn-submit" type="submit" name="save" value="1">Save</button>
+		</legend>
+
+		<div class="config-horiz-rule">Search providers (Free)</div>
+
+		<label class="control-label" for="search-provider-itunes">iTunes</label>
+		<div class="controls">
+			<select id="search-provider-itunes" name="config[search_provider_itunes]" class="config-select-large">
+				$_config[search_provider_itunes]
+			</select>
+		</div>
+		<label class="control-label" for="search-provider-deezer">Deezer</label>
+		<div class="controls">
+			<select id="search-provider-deezer" name="config[search_provider_deezer]" class="config-select-large">
+				$_config[search_provider_deezer]
+			</select>
+		</div>
+		<label class="control-label" for="search-provider-musicbrainz">MusicBrainz</label>
+		<div class="controls">
+			<select id="search-provider-musicbrainz" name="config[search_provider_musicbrainz]" class="config-select-large">
+				$_config[search_provider_musicbrainz]
+			</select>
+		</div>
+
+		<div class="config-horiz-rule">Search providers (Non-free)</div>
+
+		<label class="control-label" for="search-provider-spotify">Spotify</label>
+		<div class="controls">
+			<select id="search-provider-spotify" name="config[search_provider_spotify]" class="config-select-large">
+				$_config[search_provider_spotify]
+			</select>
+		</div>
+		<label class="control-label" for="spotify-client-id">Client ID</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="spotify-client-id" name="config[spotify_client_id]" value="$_config[spotify_client_id]">
+		</div>
+		<label class="control-label" for="spotify-client-secret">Client secret</label>
+		<div class="controls">
+			<input class="config-input-large" type="password" id="spotify-client-secret" name="config[spotify_client_secret]" value="$_config[spotify_client_secret]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-spotify-client-secret" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<a class="show-hide-password" href="#notarget" data-id="spotify-client-secret"><i class="fa-regular fa-sharp fa-eye"></i></a>
+			<span id="info-spotify-client-secret" class="config-help-info">
+				Visit <a href="https://developer.spotify.com" class="target-blank-link" target="_blank">
+					https://developer.spotify.com </a> for more information. Requires a Premium account.
+			</span>
+		</div>
+		<div class="config-horiz-rule"></div>
+		<label class="control-label" for="search-provider-lastfm">LastFM</label>
+		<div class="controls">
+			<select id="search-provider-lastfm" name="config[search_provider_lastfm]" class="config-select-large">
+				$_config[search_provider_lastfm]
+			</select>
+		</div>
+		<label class="control-label" for="lastfm-api-key">API key</label>
+		<div class="controls">
+			<input class="config-input-large" type="password" id="lastfm-api-key" name="config[lastfm_api_key]" value="$_config[lastfm_api_key]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-lastfm-api-key" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<a class="show-hide-password" href="#notarget" data-id="lastfm-api-key"><i class="fa-regular fa-sharp fa-eye"></i></a>
+			<span id="info-lastfm-api-key" class="config-help-info">
+				Visit <a href="https://www.last.fm/api" class="target-blank-link" target="_blank">
+					https://www.last.fm/api </a> for more information.
+			</span>
+		</div>
+		<div class="config-horiz-rule"></div>
+		<label class="control-label" for="search-provider-discogs">Discogs</label>
+		<div class="controls">
+			<select id="search-provider-discogs" name="config[search_provider_discogs]" class="config-select-large">
+				$_config[search_provider_discogs]
+			</select>
+		</div>
+		<label class="control-label" for="discogs-token">Token</label>
+		<div class="controls">
+			<input class="config-input-large" type="password" id="discogs-token" name="config[discogs_token]" value="$_config[discogs_token]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-discogs-token" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<a class="show-hide-password" href="#notarget" data-id="discogs-token"><i class="fa-regular fa-sharp fa-eye"></i></a>
+			<span id="info-discogs-token" class="config-help-info">
+				Visit <a href="https://www.discogs.com/settings/developers" class="target-blank-link" target="_blank">
+					https://www.discogs.com/settings/developers </a> for more information.
+			</span>
+		</div>
+		<div class="config-horiz-rule"></div>
+		<label class="control-label" for="search-provider-theaudiodb">TheAudioDB</label>
+		<div class="controls">
+			<select id="search-provider-theaudiodb" name="config[search_provider_theaudiodb]" class="config-select-large">
+				$_config[search_provider_theaudiodb]
+			</select>
+		</div>
+		<label class="control-label" for="theaudiodb-api-key">API key</label>
+		<div class="controls">
+			<input class="config-input-large" type="password" id="theaudiodb-api-key" name="config[theaudiodb_api_key]" value="$_config[theaudiodb_api_key]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-theaudiodb-api-key" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<a class="show-hide-password" href="#notarget" data-id="theaudiodb-api-key"><i class="fa-regular fa-sharp fa-eye"></i></a>
+			<span id="info-theaudiodb-api-key" class="config-help-info">
+				Visit <a href="https://www.theaudiodb.com/api_guide.php" class="target-blank-link" target="_blank">
+					https://www.theaudiodb.com/api_guide.php </a> for more information.
+			</span>
+		</div>
+
+		<div class="config-horiz-rule">Search settings</div>
+
+		<label class="control-label" for="search-min-similarity">Min similarity</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-min-similarity" name="config[search_min_similarity]" value="$_config[search_min_similarity]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-min-similarity" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-min-similarity" class="config-help-info">
+				Minimum match similarity in the range of 0 to 1.
+			</span>
+		</div>
+		<label class="control-label" for="search-min-similarity-itunes">Min similarity (iTunes)</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-min-similarity-itunes" name="config[search_min_similarity_itunes]" value="$_config[search_min_similarity_itunes]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-min-similarity-itunes" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-min-similarity-itunes" class="config-help-info">
+				Minimum match similarity for iTunes in the range of 0 to 1.
+			</span>
+		</div>
+		<label class="control-label" for="search-request-timeout">Request timeout</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-request-timeout" name="config[search_request_timeout]" value="$_config[search_request_timeout]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-request-timeout" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-request-timeout" class="config-help-info">
+				How long to wait (seconds) before terminating a query.
+			</span>
+		</div>
+		<label class="control-label" for="search-fast-deadline">Fast deadline</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-fast-deadline" name="config[search_fast_deadline]" value="$_config[search_fast_deadline]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-fast-deadline" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-fast-deadline" class="config-help-info">
+				If at least one provider responds within the Fast deadline (seconds), the best available result will be used without waiting for the other providers.
+			</span>
+		</div>
+		<label class="control-label" for="search-total-deadline">Total deadline</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-total-deadline" name="config[search_total_deadline]" value="$_config[search_total_deadline]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-total-deadline" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-total-deadline" class="config-help-info">
+				Maximum wait (seconds)before terminating the parallel search across all enabled providers.
+			</span>
+		</div>
+		<label class="control-label" for="search-early-stop-score">Early stop score</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-early-stop-score" name="config[search_early_stop_score]" value="$_config[search_early_stop_score]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-early-stop-score" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-early-stop-score" class="config-help-info">
+				If the aggregated match score exceeds Early stop score, the search stops immediately without waiting for remaining providers.
+			</span>
+		</div>
+		<label class="control-label" for="search-cover-max-size">Cover max size</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-cover-max-size" name="config[search_cover_max_size]" value="$_config[search_cover_max_size]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-cover-max-size" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-cover-max-size" class="config-help-info">
+				Maximum cover width in pixels.
+			</span>
+		</div>
+		<label class="control-label" for="search-cover-min-size">Cover min size</label>
+		<div class="controls">
+			<input class="config-input-large" type="text" id="search-cover-min-size" name="config[search_cover_min_size]" value="$_config[search_cover_min_size]">
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-search-cover-min-size" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-search-cover-min-size" class="config-help-info">
+				Minimum cover width in pixels.
+			</span>
+		</div>
+		<label class="control-label">Cover URL cache</label>
+		<div class="controls">
+			<a href="#clear-rcucache" data-toggle="modal"><button class="btn btn-medium btn-primary config-btn">Clear</button></a>
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-clear-rcucache" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span class="config-help-static">
+				Cache contains $_rcucache_count cover URL's
+			</span>
+			<span id="info-clear-rcucache" class="config-help-info">
+				This cache is populated with Title | URL for each cover thats fetched. If the WebUI
+				is refreshed or that same Title is streamed again the cached URL will be used instead
+				of performing a provider search.
+			</span>
+		</div>
+
+		<div class="config-horiz-rule">Logging</div>
+
+		<label class="control-label" for="log-level">Log level</label>
+		<div class="controls" style="margin-bottom:12em;">
+			<select id="log-level" name="config[log_level]" class="config-select-large">
+				$_config[log_level]
+			</select>
+		</div>
+</div>
+</div>
+
+<form class="form-horizontal" method="post">
+	<div id="clear-rcucache" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="clear-rcucache-label" aria-hidden="true">
+		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Clear Cover URL cache?</h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Cancel</button>
+			<button class="btn btn-primary btn-submit" type="submit" name="update_clear_rcucache" value="novalue">Yes</button>
+		</div>
+	</div>
+</form>

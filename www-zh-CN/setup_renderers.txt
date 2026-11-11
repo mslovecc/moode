@@ -1,0 +1,113 @@
+################################################################################
+#
+#  Setup Guide for Audio Renderers
+#
+#  Version: 1.4 2026-09-08
+#
+#  (C) Tim Curtis 2024 http://moodeaudio.org
+#
+################################################################################
+
+OVERVIEW
+
+The "Audio Renderers" are 3rd party playback applications that are separate from
+the core playback application in Moode; MPD (Music Player Daemon).
+
+Each Audio Renderer receives and plays audio data sent to it from a remote
+client application. The Bluetooth renderer can also send audio it receives from
+MPD to a remote Bluetooth speaker for playback.
+
+RENDERERS AND CLIENTS
+
+The following is a list of Audio Renderers and client apps that can play to
+them, plus an indication of whether Moode displays metadata and cover art sent
+from the client and whether CamillaDSP is supported in the playback chain.
+
++-------------------------------------------------------------------------------
+| RENDERER            | CLIENT                    | COVERS | CamillaDSP | Peppy
++-------------------------------------------------------------------------------
+| Bluetooth Inbound   | Apps supporting Bluetooth | No     | Yes        | Yes
++-------------------------------------------------------------------------------
+| Bluetooth Speaker   | MPD, Other renderer apps  | No     | Yes        | Yes
++-------------------------------------------------------------------------------
+| AirPlay             | Apps supporting AirPlay   | Yes    | Yes        | Yes
++-------------------------------------------------------------------------------
+| Spotify Connect     | Spotify app               | Yes    | Yes        | Yes
++-------------------------------------------------------------------------------
+| Qobuz Connect       | Qobuz app                 | Yes    | Yes        | Yes
++-------------------------------------------------------------------------------
+| Spotify Soloist     | Spotify app               | Yes    | Yes        | Yes
++-------------------------------------------------------------------------------
+| Squeezelite         | Lyrion Media Server (LMS) | No     | Yes        | Yes
++-------------------------------------------------------------------------------
+| UPnP Client for MPD | UPnP Control Point app    | Yes    | Yes        | Yes
++-------------------------------------------------------------------------------
+| Plexamp             | Plex Web app              | No     | No         | No
++-------------------------------------------------------------------------------
+| RoonBridge          | Roon server               | No     | No         | No
++-------------------------------------------------------------------------------
+
+MULTIPLE RENDERERS ON
+
+The following audio renderers can be ON at the same time waiting for connections
+from clients. Note, there is no mechanism for interrupting an active renderer
+and automatically switching to another renderer. Playback to the active renderer
+must be stopped first and it must release the audio output before connecting to
+another renderer.
+
+- Bluetooth
+- AirPlay
+- Spotify Connect
+- Qobuz Connect
+- Spotify Soloist
+- Squeezelite (providing -c <timeout> option is specified)
+- UPnP Client for MPD
+
+These audio renderers try to acquire exclusive access to the audio device
+when they are turned ON and thus no other renderer can be also be ON.
+
+- Squeezelite (if -c <timeout> option is not specified)
+- Plexamp
+- RoonBridge
+
+RENDERER PROTOCOL TYPES
+
+There are two types of communications protocols used by the audio
+renderers. The first is a Connection based protocol and the second is a
+Session based protocol.
+
+Connection Based
+
+Bluetooth uses a Connection based protocol. This means that Bluetooth first
+establishes a physical network connection between two hosts before any audio
+data can be sent between them. This network connection remains active until it
+is manually disconnected. Moode detects the connection and displays the
+"Bluetooth Active" screen.
+
+Session Based
+
+The other renderers use Session based protocols that run over existing
+Ethernet or WiFi networks. Since these networks are already present this type
+of renderer operates by establishing a playback session. Moode detects the
+session and displays cover art and track metadata for AirPlay, Spotify
+Connect, Qobuz Connect, Spotify Soloist or the "Renderer Active" screen for Squeezelite, Plexamp
+and RoonBridge renderers.
+
+AirPlay and Squeezelite renderers can automatically end their session and
+release the audio output after playback ends based on a configurable timeout
+value.
+
+RECEIVE-ONLY RENDERERS
+
+All the renderers except for Bluetooth are receive-only. They cannot directly
+send audio data to a remote host for playback.
+
+RECEIVE/SEND RENDERERS
+
+Bluetooth can be configured to send audio it receives from MPD or the other
+renderers to a remote host for playback by setting its Audio output to
+"Bluetooth speaker" in the Bluetooth Control screen.
+
+################################################################################
+#  Post questions regarding this guide to http://moodeaudio.org/forum
+################################################################################

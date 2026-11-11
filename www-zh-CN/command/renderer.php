@@ -1,0 +1,68 @@
+<?php
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+
+require_once __DIR__ . '/../inc/common.php';
+require_once __DIR__ . '/../inc/mpd.php';
+require_once __DIR__ . '/../inc/session.php';
+require_once __DIR__ . '/../inc/sql.php';
+
+// This script processes 'Turn off' and 'Disconnect' actions from the corresponding buttons on
+// Renderer Active overlays for Bluetooth, Airplay, Spotify Connect, Squeezelite, Plexamp,
+// RoonBridge, and Multiroom Receiver.
+//
+
+chkVariables($_GET);
+chkVariables($_POST);
+
+switch ($_GET['cmd']) {
+	case 'disconnect_renderer':
+		// Squeezelite, Plexamp and trx-rx hog the audio output so need to be turned off in order to released it
+		phpSession('open');
+	 	if ($_POST['job'] == 'slsvc') {
+	 		phpSession('write', 'slsvc', '0');
+		} else if ($_POST['job'] == 'pasvc') {
+	 		phpSession('write', 'pasvc', '0');
+	 	} else if ($_POST['job'] == 'multiroom_rx') {
+	 		phpSession('write', 'multiroom_rx', 'Off');
+	 	}
+		phpSession('close');
+
+	 	// AirPlay, Spotify Connect, Qobuz Connect, Spotify Soloist and RoonBridge are session based, they can be restarted to effect a disconnect
+	 	// NOTE: 'disconnect_renderer' is passed to worker so MPD play can be resumed if indicated
+	 	if (submitJob($_POST['job'], $_GET['cmd'])) {
+	 		echo json_encode('job submitted');
+	 	} else {
+	 		echo json_encode('worker busy');
+	 	}
+		break;
+	// Metadata files are in JSON format
+	// Return is string '"{"0": "cmd", "key1": "value1", ..., "keyN": "valueN"}"'
+	case 'get_aplmeta':
+		echo trim(file_get_contents(APLMETA_CACHE_FILE));
+		break;
+	case 'get_qbzmeta':
+		echo trim(file_get_contents(QBZMETA_CACHE_FILE));
+		break;
+	case 'get_spotmeta':
+		echo trim(file_get_contents(SPOTMETA_CACHE_FILE));
+		break;
+	case 'get_solmeta':
+		echo trim(file_get_contents(SOLMETA_CACHE_FILE));
+		break;
+	case 'get_btmeta':
+		echo trim(file_get_contents(BTMETA_CACHE_FILE));
+		break;
+	// Relay the user's answer to a Bluetooth pairing confirmation (see the modal in
+	// footer.php and bt_pairing_agent.py). $_POST: id, accepted ('1'/'0'), code (optional).
+	case 'bt_pair_response':
+		$code = isset($_POST['code']) ? $_POST['code'] : '';
+		$ok = sendBtAgentResponse($_POST['id'], $_POST['accepted'], $code);
+		echo json_encode($ok ? 'ok' : 'failed');
+		break;
+	default:
+		echo 'Unknown command';
+		break;
+}
