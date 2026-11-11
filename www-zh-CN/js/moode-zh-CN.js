@@ -2201,6 +2201,44 @@
   "How much audio to buffer before playback starts. A larger buffer can help reduce the likelihood of audio glitches on a slow or poor quality network.": "开始播放前需要缓冲的音频量。较大的缓冲区有助于减少网络速度较慢或质量较差时出现的音频卡顿。",
   "This cache is populated with Title | URL for each cover that is fetched. If the WebUI is refreshed or that same Title is streamed again the cached URL will be used instead of performing a provider search.": "此缓存为每张获取的封面保存 Title | URL。如果刷新 WebUI，或再次播放具有相同标题的音频流，系统将使用缓存的 URL，而不再向服务提供商发起搜索。"
 });
+  // Final visible strings found in the page-by-page template audit.
+  Object.assign(dict, {
+  "Length 1-32 chars, space, period and dash are allowed.": "长度为 1–32 个字符，允许使用空格、句点和连字符。",
+  "GPIO pinout diagram": "GPIO 引脚图",
+  "Sets the backdrop to the choosen JPEG image. Max image size is 1MB.": "将所选 JPEG 图片设为背景，图片最大为 1 MB。",
+  "By clicking the current track title in Playback view an internet search is launched with the selected site. A combination of artist and album is searched. Wikipedia search is restricted to artist only.": "在播放视图中点击当前曲目标题，会使用所选网站启动互联网搜索。默认搜索艺术家和专辑的组合；Wikipedia 搜索仅使用艺术家名称。",
+  "- The string \"AlbumDate: YYYYMM\" at the beginning of the Comment tag can be used to add month to the the sort order.": "- 可在 Comment 标签开头添加字符串“AlbumDate: YYYYMM”，将月份纳入排序。",
+  "Specify how albums of the same name are differentated. The term @AlbumID refers to the MUSICBRAINZ_ALBUMID tag.": "指定如何区分名称相同的专辑。@AlbumID 指 MUSICBRAINZ_ALBUMID 标签。",
+  "Specifies whether the station stream is only avalable in a certain country or region.": "指定该电台音频流是否仅在特定国家或地区提供。",
+  "Specify the number of buffer underrun message that need to occur before MPD is restarted.": "指定在重新启动 MPD 之前允许出现的缓冲区欠载消息数量。",
+  "Clears the cached searched results and station logos.": "清除缓存的搜索结果和电台标志。",
+  "Add a JPEG image for the playlist. Max image size is 1MB.": "为播放列表添加 JPEG 图片，最大为 1 MB。",
+  "Repeat": "重复播放",
+  "Music Library": "音乐库",
+  "Bit depth": "位深",
+  "Sample rate (kHz)": "采样率（kHz）",
+  "Channels": "声道数",
+  "Network": "网络",
+  "Ethernet": "以太网",
+  "Address method": "地址分配方式",
+  "Address": "IP 地址",
+  "Netmask": "子网掩码",
+  "Gateway": "网关",
+  "Primary DNS": "首选 DNS",
+  "Secondary DNS": "备用 DNS",
+  "Wireless": "无线网络",
+  "Wireless networks on the 5Ghz band generally perform better than those on the 2.4GHz band due to less congestion and interference from other networks.": "由于其他网络造成的拥塞和干扰较少，5 GHz 无线网络通常比 2.4 GHz 网络性能更好。",
+  "Set the value used for normalizing volume data comming from the FIFO pipe. A lower value will cause the meter needle to appear higher and vice versa for higher values.": "设置用于标准化 FIFO 管道音量数据的数值。数值越低，仪表指针显示越高；数值越高则相反。",
+  "After confirming, the existing moOde meter files will be removed before installing the latest files.": "确认后，将先删除现有 moOde 仪表文件，再安装最新文件。",
+  "sudo moodeutl --setdisplay [webui | peppy].": "sudo moodeutl --setdisplay [webui | peppy]。",
+  "When the WebUI is displayed and MPD playback starts playback this timeout determines when the display will be switched to Peppy meter if no touch occurs.": "显示 WebUI 时，如果 MPD 开始播放且屏幕未被触摸，则在此超时时间后切换到 Peppy 仪表。",
+  "The LCD update daemon monitors the Metadata file /var/local/www/currentsong.txt. When changes are detected it runs a Python script named lcd-updater.py located in the /var/local/www/commandw/ directory.": "LCD 更新守护进程会监控元数据文件 /var/local/www/currentsong.txt。检测到变化后，将运行位于 /var/local/www/commandw/ 目录中的 Python 脚本 lcd-updater.py。",
+  "How much audio to buffer before playback starts. A larger buffer can help reduce the likelihood of audio glitches on a slow or poor quality network.": "开始播放前需要缓冲的音频量。较大的缓冲区有助于减少网络速度较慢或质量较差时出现的音频卡顿。",
+  "This cache is populated with Title | URL for each cover that is fetched. If the WebUI is refreshed or that same Title is streamed again the cached URL will be used instead of performing a provider search.": "此缓存为每张获取的封面保存 Title | URL。如果刷新 WebUI，或再次播放具有相同标题的音频流，系统将使用缓存的 URL，而不再向服务提供商发起搜索。",
+  "Soloist": "Soloist",
+  "Enter": "输入",
+  "Off": "关闭"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
