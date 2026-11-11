@@ -2412,8 +2412,12 @@
   function translateAttr(el, name) {
     if (!el || excluded(el)) return;
     var value = el.getAttribute(name);
-    if (value && Object.prototype.hasOwnProperty.call(dict, value.trim())) {
-      el.setAttribute(name, dict[value.trim()]);
+    if (!value) return;
+    var translated = dict[value.trim()];
+    // Avoid writing an unchanged value: attribute writes are observed below,
+    // and repeatedly setting the same value can create an observer feedback loop.
+    if (typeof translated === 'string' && translated !== value) {
+      el.setAttribute(name, translated);
     }
   }
 
