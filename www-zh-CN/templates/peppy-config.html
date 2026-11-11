@@ -1,0 +1,173 @@
+<!--
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+-->
+<div id="container">
+<div class="container">
+	<h1 class="per-config">Peppy Config</h1>
+
+    <form class="form-horizontal" action="" method="post">
+    	<legend>Settings
+			<button class="legend-config btn btn-medium btn-primary btn-submit" type="submit" name="save" value="1">Save</button>
+		</legend>
+
+		<div class="config-horiz-rule">General</div>
+
+		<div class="control-group">
+			<label class="control-label" for="screen-width">Screen width</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="screen-width" name="settings[screen_width]" value="$_select[screen_width]">
+			</div>
+
+			<label class="control-label" for="screen-height">Screen height</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="screen-height" name="settings[screen_height]" value="$_select[screen_height]">
+				<span class="config-help-static">
+					Width and height in pixels.
+				</span>
+			</div>
+
+			<label class="control-label" for="random-interval">Random interval</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="random-interval" name="settings[random_interval]" value="$_select[random_interval]">
+				<span class="config-help-static">
+					Time in seconds to show randomly selected Meters or Spectrums.
+				</span>
+			</div>
+		</div>
+
+		<div class="config-horiz-rule">Meters</div>
+
+		<div class="control-group">
+			<label class="control-label" for="meter-folder">Folder</label>
+			<div class="controls">
+				<select id="meter-folder" class="config-select-large" name="settings[meter_folder]">
+					$_select[meter_folder]
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-meter-folder" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<a aria-label="Refresh" class="config-refresh-btn" href="peppy-config.php"><i class="fa-solid fa-sharp fa-redo dx"></i></a>
+				<span id="info-meter-folder" class="config-help-info">
+					Select a Meter folder. The available Meters contained in the folder will be listed below.
+				</span>
+				<span id="meter-list" class="config-help-static">
+					$_meter_list
+				</span>
+			</div>
+
+			<label class="control-label" for="meter-name">Meter(s)</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="meter-name" name="settings[meter_name]" value="$_select[meter_name]">
+				<span class="config-help-static">
+					Enter "random" or one or more comma separated Meter names from the list above.
+				</span>
+			</div>
+
+			<label class="control-label" for="meter-normalization">Normalization</label>
+			<div class="controls">
+				<input class="config-input-large" type="number" step="0.1" pattern="^\d*\.\d$" id="meter-normalization" name="settings[meter_normalization]" value="$_select[meter_normalization]">
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-meter-normalization" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-meter-normalization" class="config-help-info">
+					Set the value used for normalizing volume data comming from the FIFO pipe.
+					A lower value will cause the meter needle to appear higher and vis versa for higher values.<br>
+					The default is 100.0.
+				</span>
+			</div>
+
+			<label class="control-label" for="meter-curve">Volume curve</label>
+			<div class="controls">
+				<input class="config-input-large" type="number" step="0.1" pattern="^\d*\.\d$" id="meter-curve" name="settings[meter_curve]" value="$_select[meter_curve]">
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-meter-curve" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-meter-curve" class="config-help-info">
+					Set the logarithmic curve applied to the meter level.
+					A higher value lifts low levels while silence and full scale stay put, values between 10 and 30 are a good starting point.<br>
+					The default is 0.0 (linear).
+				</span>
+			</div>
+
+			<label class="control-label" for="frame-rate">Frame rate (fps)</label>
+			<div class="controls">
+				<select id="frame-rate" class="config-select-large" name="settings[frame_rate]">
+					$_select[frame_rate]
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-frame-rate" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-frame-rate" class="config-help-info">
+					Set this to the specified frame rate of the display.<br>
+					The default is 30.
+				</span>
+			</div>
+			<label class="control-label" for="polling-interval">Polling interval (secs)</label>
+			<div class="controls">
+				<select id="polling-interval" class="config-select-large" name="settings[polling_interval]">
+					$_select[polling_interval]
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-polling-interval" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-polling-interval" class="config-help-info">
+					Determines how often data is read from the named pipe.
+					The value is based on the frame rate and should be >= once per frame.<br>
+					Use 0.03|0.04 for 30 fps, 0.015|0.02 for 60 fps.
+				</span>
+			</div>
+			<label class="control-label" for="smooth-buffer-size">Smooth buffer size</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="smooth-buffer-size" name="settings[smooth_buffer_size]" value="$_select[smooth_buffer_size]">
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-smooth-buffer-size" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-smooth-buffer-size" class="config-help-info">
+					Increasing the value will increase animation smoothness and vice versa.<br>
+					The default value is 4.
+				</span>
+			</div>
+
+			<label class="control-label">moOde meters</label>
+			<div class="controls">
+				<a data-toggle="modal" href="#install-moode-meters"><button class="btn btn-medium btn-primary config-btn">Install</button></a>
+				<span class="config-btn-after">$_latest_moode_meters</span>
+				<span class="config-help-static">
+					Install the latest set of custom moOde meters. The meter folders are named with a "-moode" suffix and are installed into /opt/peppymeter.<br>
+					<b>Caution:</b> After confirming, the existing moode meter files will be removed before installing the latest files.
+				</span>
+			</div>
+		</div>
+
+		<div class="config-horiz-rule">Spectrums</div>
+
+		<div class="control-group">
+			<label class="control-label" for="spectrum-folder">Folder</label>
+			<div class="controls">
+				<select id="spectrum-folder" class="config-select-large" name="settings[spectrum_folder]">
+					$_select[spectrum_folder]
+				</select>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-spectrum-folder" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-spectrum-folder" class="config-help-info">
+					Select a Meter folder. The available Meters contained in the folder will be listed below.
+				</span>
+				<span id="spectrum-list" class="config-help-static">
+					$_spectrum_list
+				</span>
+			</div>
+
+			<label class="control-label" for="spectrum-name">Spectrum(s)</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="spectrum-name" name="settings[spectrum_name]" value="$_select[spectrum_name]">
+				<span class="config-help-static">
+					Enter "random" or one or more comma separated Spectrum names from the list above.
+				</span>
+			</div>
+		</div>
+	</form>
+</div>
+</div>
+
+<form class="form-horizontal" method="post">
+	<div id="install-moode-meters" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="install-moode-meters-label" aria-hidden="true">
+		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Install Latest Moode Meters?</h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Cancel</button>
+			<button class="btn btn-primary btn-submit" type="submit" name="install_moode_meters" value="1">Yes</button>
+		</div>
+	</div>
+</form>

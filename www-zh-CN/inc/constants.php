@@ -1,0 +1,390 @@
+<?php
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+
+// PHP
+const PHP_VER = '8.4';
+
+// Log files
+const MOODE_LOG = '/var/log/moode.log';
+const MOODE_PREVLOG = '/var/log/moode_prevlog.log';
+const AUTOCFG_LOG = '/var/log/moode_autocfg.log';
+const AUTORESTORE_LOG = '/var/log/moode_autorestore.log';
+const UPDATER_LOG = '/var/log/moode_update.log';
+const PLUGIN_LOG="/var/log/moode_plugin.log";
+const PLAY_HISTORY_LOG = '/var/log/moode_playhistory.log';
+const MOUNTMON_LOG = '/var/log/moode_mountmon.log';
+const SHAIRPORT_SYNC_LOG = '/var/log/moode_shairport-sync.log';
+const SPSEVENT_LOG = '/var/log/moode_spsevent.log';
+const LIBRESPOT_LOG = '/var/log/moode_librespot.log';
+const SPOTEVENT_LOG = '/var/log/moode_spotevent.log';
+const PIBUZ_LOG = '/var/log/moode_pibuz.log';
+const QBZEVENT_LOG = '/var/log/moode_qbzevent.log';
+const SOLOIST_LOG = '/var/log/moode_soloist.log';
+const SOLEVENT_LOG = '/var/log/moode_solevent.log';
+const SLPOWER_LOG = '/var/log/moode_slpower.log';
+// MPD
+const MPD_RESPONSE_ERR = 'ACK';
+const MPD_RESPONSE_OK = 'OK';
+const MPD_DEFAULT_SOCKET_TIMEOUT = '600000'; // Secs (7 days)
+const MPD_CONF = '/etc/mpd.conf';
+const MPD_MUSICROOT = '/var/lib/mpd/music/';
+const MPD_PLAYLIST_ROOT = '/var/lib/mpd/playlists/';
+const MPD_LOG = '/var/log/mpd/log';
+// Currentsong / Now playing
+const CURRENTSONG_TXT = '/var/local/www/currentsong.txt';
+const CURRENTSONG_TXT_TMP = '/tmp/currentsong.txt';
+// Radiocover plus
+const RADIOCOVER_PLUS_CFG = '/etc/radiocover-plus/config.txt';
+const RADIOCOVER_PLUS_LOG = '/var/log/moode_radiocover_plus.log';
+// Radio Browser (radio-browser.info)
+const RADIOBROWSER_API_PRIMARY = 'all.api.radio-browser.info'; // round-robin alias: bootstrap + last resort
+const RADIOBROWSER_API_SRV = '_api._tcp.radio-browser.info';   // DNS SRV record for server discovery
+const RADIOBROWSER_UA = 'moode-radio-browser/1.0';
+const RADIOBROWSER_CACHE = '/var/local/www/rb-cache';
+const RADIOBROWSER_RECENT_FILE = '/var/local/www/rb-cache/recently_played.json';
+const RADIOBROWSER_IMAGE_CACHE = '/var/local/www/imagesw/rb-logos';
+const RADIOBROWSER_IMAGE_MIN_SIZE = 100; // bytes
+const RADIOBROWSER_IMAGE_MAX_SIZE = 1000000; // bytes
+const RADIOBROWSER_CACHE_TTL = 1800; // Search results (30 min)
+const RADIOBROWSER_CACHE_TTL_STATIC = 43200; // Countries/genres/topclick (12 hr)
+const RADIOBROWSER_RECENT_MAX = 50;
+const RADIOBROWSER_LIMIT = 28; // Fixed search/page size
+// AirPlay, Qobuz Connect, Spotify Connect, Spotify Soloist and Bluetooth
+const APLMETA_CACHE_FILE = '/var/local/www/aplmeta.json';
+const QBZMETA_CACHE_FILE = '/var/local/www/qbzmeta.json';
+const SPOTMETA_CACHE_FILE = '/var/local/www/spotmeta.json';
+const SOLMETA_CACHE_FILE = '/var/local/www/solmeta.json';
+const BTMETA_CACHE_FILE = '/var/local/www/btmeta.json';
+// Spotify Soloist
+const SOLOIST_BIN = '/usr/local/bin/soloist';
+const SOLOIST_KEY_FILE = '/var/local/www/soloist.key';
+const SOLOIST_DATA_DIR = '/var/local/www/soloist_data';
+const SOLOIST_CACHE_DIR = '/var/local/www/soloist_cache';
+const SOLOIST_RUNTIME_DIR = '/run/soloist';
+const SOLOIST_WS = '127.0.0.1:0'; // Port chosen by the OS, read from <data dir>/ws.port by soloist ctl
+const SOLOIST_BUILD_LIFETIME = 90; // Days
+const ITUNES_API_BASE_URL = 'https://itunes.apple.com/search';
+// SQLite
+const SQLDB = 'sqlite:/var/local/www/db/moode-sqlite3.db';
+const SQLDB_PATH = '/var/local/www/db/moode-sqlite3.db';
+// Dashboard
+const DASHBOARD_CACHE_FILE = '/var/local/www/dashboard.json';
+// Default titles and covers
+const DEFAULT_STATION_NAME = 'Radio station';
+const DEFAULT_ALBUM_COVER = 'images/default-album-cover.jpg';
+const DEFAULT_RADIO_COVER = 'images/default-radio-cover.jpg';
+const DEFAULT_PLAYLIST_COVER = '/var/www/images/default-playlist-cover.jpg';
+const DEFAULT_NOTFOUND_COVER = '/var/www/images/default-notfound-cover.jpg';
+const DEFAULT_UPNP_COVER = 'images/default-upnp-cover.jpg';
+const DEFAULT_RX_COVER = 'images/default-rx-cover.jpg'; // DEPRECATED
+// Library/Playback
+const LIBCACHE_BASE = '/var/local/www/libcache';
+const ROOT_DIRECTORIES = array('NAS', 'NVME', 'OSDISK', 'RADIO', 'SATA', 'USB');
+const AIRPLAY_COVERS_ROOT = '/var/local/www/imagesw/airplay-covers/';
+const PLAYLIST_COVERS_ROOT = '/var/local/www/imagesw/playlist-covers/';
+const RADIO_LOGOS_ROOT = '/var/local/www/imagesw/radio-logos/';
+const LOGO_ROOT_DIR = 'imagesw/radio-logos/';
+const TMP_IMAGE_PREFIX = '__tmp__';
+const ALSA_PLUGIN_PATH = '/etc/alsa/conf.d';
+const STATION_EXPORT_DIR = '/var/local/www/imagesw';
+const LIB_MOUNT_OK = '<i class="fa-solid fa-sharp fa-check sx" style="color:#27ae60;"></i>';
+const LIB_MOUNT_FAILED = '<i class="fa-solid fa-sharp fa-times sx" style="color:#e74c3c;"></i>';
+const LIB_MOUNT_TYPE_SMB = 'cifs';
+const LIB_MOUNT_TYPE_NFS = 'nfs';
+const LIB_MOUNT_TYPE_NVME = 'nvme';
+const LIB_MOUNT_TYPE_SATA = 'sata';
+const LIB_MOUNT_ROOT_NAS = '/mnt/NAS';
+const LIB_MOUNT_ROOT_NVME = '/mnt/NVME';
+const LIB_MOUNT_ROOT_SATA = '/mnt/SATA';
+const LIB_MOUNT_ROOT_USB = '/media';
+const LIB_DRIVE_UNFORMATTED = 'Unformatted';
+const LIB_DRIVE_NOT_EXT4 = 'Not ext4';
+const LIB_DRIVE_NO_LABEL = 'No label';
+// Thumbnail generator
+const THMCACHE_DIR = '/var/local/www/imagesw/thmcache/';
+const THM_SM_W = 80; // Small thumbs
+const THM_SM_H = 80;
+const THM_SM_Q = 75;
+// Radio and Playlist thumbs
+const THM_DEFAULT_W = 600;
+const THM_DEFAULT_Q = 75;
+// System
+const PORT_FILE = '/tmp/moode_portfile'; // Command engine
+const SESSION_SAVE_PATH = '/var/local/php';
+const DEV_ROOTFS_SIZE = 3670016000; // Bytes (3.5GB)
+const LOW_DISKSPACE_LIMIT = 524288; // Bytes (512MB)
+const BOOT_DIR = '/boot/firmware';
+const BOOT_CONFIG_TXT = BOOT_DIR . '/config.txt';
+const BOOT_CMDLINE_TXT = BOOT_DIR . '/cmdline.txt';
+const BOOT_MOODEBACKUP_ZIP = '/boot/moodebackup.zip';
+const BOOT_MOODECFG_INI = '/boot/moodecfg.ini';
+const BT_AGENT_SOCK = '/tmp/moode-btagent.sock'; // bt_pairing_agent.py response socket
+const BT_AGENT_ENV = '/var/local/www/btagent.env'; // bt-agent.service capability (BT_AGENT_CAPABILITY)
+const ETC_MACHINE_INFO = '/etc/machine-info';
+const CHROMIUM_DOWNGRADE_VER = '126.0.6478.164-rpt1';
+const NO_USERID_DEFINED = 'userid does not exist';
+const READY_SCRIPT = '/var/local/www/commandw/ready-script.sh';
+const READY_CHIME_URI = 'OSDISK/System Sounds/ReadyChime.flac';
+const READY_CHIME_TITLE = 'moOde audio - Ready Chime';
+// File sharing
+const FS_SMB_CONF = '/etc/samba/smb.conf';
+// WebUI display
+const DEFAULT_WEBUI_DISPLAY_URL = 'http://localhost/';
+// Peppy display
+const PEPPY_METER_ETC_DIR = '/etc/peppymeter';
+const PEPPY_METER_OPT_DIR = '/opt/peppymeter';
+const PEPPY_SPECTRUM_ETC_DIR = '/etc/peppyspectrum';
+const PEPPY_SPECTRUM_OPT_DIR = '/opt/peppyspectrum';
+// Live meter gain source: peppy-gain.php writes the current hardware attenuation (dB)
+// here and PeppyMeter (volume.gain.db.source) scales its needles by 10^(dB/20). /tmp,
+// alongside the existing /tmp/peppymeter FIFO.
+const PEPPY_GAIN_DB_FILE = '/tmp/peppy_gain_db';
+// Seconds before retrying the ALSA monitor after the card goes away (DAC unplugged)
+const PEPPY_GAIN_MON_RETRY = 5;
+const PEPPY_GAIN_MON_LOG = '/tmp/moode_peppy_gain.log';
+// Peppy touch monitor
+const TOUCHMON_LOG = '/tmp/moode_touchmon.log';
+const TOUCHMON_TIMEOUT_DEFAULT = 15;
+const TOUCHMON_CLOSED_COUNT = 3;
+// Notifications
+const NOTIFY_TITLE_INFO = '<i class="fa fa-solid fa-sharp fa-circle-check" style="color:#27ae60;"></i> Info';
+const NOTIFY_TITLE_ALERT = '<i class="fa fa-solid fa-sharp fa-circle-xmark" style="color:#e74c3c;"></i> Alert';
+const NOTIFY_TITLE_ERROR = '<i class="fa fa-solid fa-sharp fa-do-not-enter" style="color:#e74c3c;"></i> Error';
+const NOTIFY_TITLE_WELCOME = '<i class="fa fa-solid fa-sharp fa-circle-check" style="color:#27ae60;"></i> Welcome!';
+const NOTIFY_DURATION_SHORT = 2; // Seconds
+const NOTIFY_DURATION_DEFAULT = 5;
+const NOTIFY_DURATION_MEDIUM = 10;
+const NOTIFY_DURATION_LONG = 30;
+const NOTIFY_DURATION_INFINITE = 8640000; // 100 days
+const NOTIFY_MSG_SYSTEM_RESTART_REQD = 'Restart the system for the changes to take effect.';
+const NOTIFY_MSG_SVC_RESTARTED = ' has been restarted to make the changes effective.';
+const NOTIFY_MSG_SVC_SETTINGS_APPLIED = ' settings have been applied.';
+const NOTIFY_MSG_SVC_MANUAL_RESTART = ' has been restarted.';
+const NOTIFY_MSG_LOCALDISPLAY_STARTING = 'Local display is starting...';
+const NOTIFY_MSG_PEPPYDISPLAY_STARTING = 'Peppy display is starting...';
+const NOTIFY_MSG_LOOPBACK_ACTIVE = 'Loopback cannot be turned off while playback is active.';
+const NOTIFY_MSG_BLUETOOTH_RECONNECT = 'Reconnect to the Bluetooth device to make this setting effective.';
+const NOTIFY_MPD_UPDATE_LIBRARY = 'Update the Library for the changes to take effect.';
+// Component names (for notification messages)
+const NAME_AIRPLAY = 'AirPlay';
+const NAME_BLUETOOTH = 'Bluetooth Controller';
+const NAME_BLUETOOTH_PAIRING_AGENT = 'Pairing Agent';
+const NAME_SPOTIFY = 'Spotify Connect';
+const NAME_QOBUZ = 'Qobuz Connect';
+const NAME_SOLOIST = 'Spotify Soloist';
+const NAME_SQUEEZELITE = 'Squeezelite';
+const NAME_UPNP = 'UPnP';
+const NAME_DLNA = 'DLNA';
+const NAME_PLEXAMP = 'Plexamp';
+const NAME_ROONBRIDGE = 'RoonBridge';
+const NAME_GPIO = 'GPIO Controller';
+const NAME_LOCALDISPLAY = 'Local Display';
+const NAME_PEPPYDISPLAY = 'Peppy Display';
+
+// Local display X11 CalibrationMatrix touch angles
+const X11_TOUCH_ANGLE = array(
+    '0' => '1 0 0 0 1 0 0 0 1',
+    '90' => '0 1 0 -1 0 1 0 0 1',
+    '180' => '-1 0 1 0 -1 1 0 0 1',
+    '270' => '0 -1 1 1 0 0 0 0 1'
+);
+
+// SMB protocol versions
+const SMB_VERSIONS = array(
+    "2.02" => "2.0",
+    "2.10" => "2.1",
+    "3.00" => "3.0",
+    "3.02" => "3.0.2",
+    "3.11" => "3.1.1",
+
+    "202" => "2.0",
+    "210" => "2.1",
+    "300" => "3.0",
+    "302" => "3.0.2",
+    "311" => "3.1.1",
+
+    "2:0:2" => "2.0",
+    "2:1:0" => "2.1",
+    "3:0:0" => "3.0",
+    "3:0:2" => "3.0.2",
+    "3:1:1" => "3.1.1"
+);
+
+// Boot config.txt managed lines
+const CFG_HEADERS_REQUIRED = 5;
+const CFG_MAIN_FILE_HEADER = '# This file is managed by moOde';
+const CFG_DEVICE_FILTERS_HEADER = '# Device filters';
+const CFG_GENERAL_SETTINGS_HEADER = '# General settings';
+const CFG_DO_NOT_ALTER_HEADER = '# Do not alter this section';
+const CFG_AUDIO_OVERLAYS_HEADER = '# Audio overlays';
+const CFG_FORCE_EEPROM_READ = 'force_eeprom_read=0';
+const CFG_HDMI_ENABLE_4KP60 = 'hdmi_enable_4kp60';
+const CFG_PCI_EXPRESS = 'pciex1';
+const CFG_PCI_EXPRESS_GEN3 = 'pciex1_gen=3';
+const CFG_DISABLE_BT = 'disable-bt';
+const CFG_DISABLE_WIFI = 'disable-wifi';
+const CFG_DISPLAY_AUTODETECT = 'display_auto_detect=1';
+const CFG_PITOUCH_INVERTXY = 'vc4-kms-dsi-7inch,invx,invy';
+const CFG_EXTERNAL_ANTENNA = 'dtparam=ant2';
+// Boot cmdline.txt managed params
+const CFG_PITOUCH_ROTATE_180 = 'video=DSI-1:800x480@60,rotate=180';
+const CFG_PI_HEADPHONE_JACK_ENABLE = 'snd_bcm2835.enable_headphones=1';
+
+// Features availability bitmask
+// NOTE: Updates must also be made to matching code blocks in playerlib.js, sysinfo.sh, moodeutl, and footer.php
+// moodeutl -q "SELECT value FROM cfg_system WHERE param='feat_bitmask'"
+// moodeutl -q "UPDATE cfg_system SET value='228343' WHERE param='feat_bitmask'"
+const FEAT_HTTPS        = 1;		// y HTTPS mode
+const FEAT_AIRPLAY      = 2;		// y AirPlay renderer
+const FEAT_MINIDLNA     = 4;		// y DLNA server
+const FEAT_RECORDER     = 8; 		//   Stream recorder
+const FEAT_SQUEEZELITE  = 16;		// y Squeezelite renderer
+const FEAT_UPMPDCLI     = 32;		// y UPnP client for MPD
+const FEAT_QOBUZ        = 64;   	// n Qobuz Connect renderer
+const FEAT_ROONBRIDGE   = 128;		// y RoonBridge renderer
+const FEAT_LOCALDISPLAY = 256;		// y Local display
+const FEAT_INPSOURCE    = 512;		// y Input source select
+const FEAT_UPNPSYNC     = 1024;		//   UPnP volume sync
+const FEAT_SPOTIFY      = 2048;		// y Spotify Connect renderer
+const FEAT_GPIO         = 4096;		// y GPIO button handler
+const FEAT_PLEXAMP      = 8192;		// y Plexamp renderer
+const FEAT_BLUETOOTH    = 16384;	// y Bluetooth renderer
+const FEAT_DEVTWEAKS    = 32768;	//   Developer tweaks
+const FEAT_MULTIROOM    = 65536;	// y Multiroom audio
+const FEAT_PEPPYDISPLAY = 131072;	// y Peppy display
+const FEAT_SOLOIST      = 262144;	// y Spotify Soloist renderer
+//						 -------
+//						  490423
+
+// Selective resampling bitmask
+const SOX_UPSAMPLE_ALL			= 3; // Upsample if source < target rate
+const SOX_UPSAMPLE_ONLY_41K		= 1; // Upsample only 44.1K source rate
+const SOX_UPSAMPLE_ONLY_4148K	= 2; // Upsample only 44.1K and 48K source rates
+const SOX_ADHERE_BASE_FREQ		= 8; // Resample (adhere to base freq)
+
+// Album and Radio HD badge parameters
+// NOTE: Mirrored in playerlib.js
+const ALBUM_HIRES_BADGE_TEXT 			= 'HD';
+const ALBUM_BIT_DEPTH_THRESHOLD 	= 16;
+const ALBUM_SAMPLE_RATE_THRESHOLD 	= 44100;
+const RADIO_HIRES_BADGE_TEXT 			= 'HiRes';
+const RADIO_BITRATE_THRESHOLD 		= 128;
+
+// MPD output names
+const ALSA_DEFAULT			= 'ALSA Default';
+const ALSA_BLUETOOTH		= 'ALSA Bluetooth';
+const HTTP_SERVER			= 'HTTP Server';
+const STREAM_RECORDER		= 'Stream Recorder';
+
+// Audio output interfaces
+const AO_HDMI = 'hdmi';
+const AO_HEADPHONE = 'headphone';
+const AO_I2S = 'i2s';
+const AO_USB = 'usb';
+const AO_TRXSEND = 'trxsend';
+
+// Audio device names (Pi integrated audio)
+const PI_HDMI1 = 'Pi HDMI 1';
+const PI_HDMI2 = 'Pi HDMI 2';
+const PI_HEADPHONE = 'Pi Headphone jack';
+
+// Audio drivers (Pi integrated audio)
+const PI_VC4_KMS_V3D = 'vc4-kms-v3d';
+const PI_SND_BCM2835 = 'snd-bcm2835';
+
+// ALSA max number of cards (4 USB, 3 Integrated, 1 I2S)
+const ALSA_MAX_CARDS = 8;
+// ALSA special device names
+const ALSA_LOOPBACK_DEVICE = 'Loopback';
+const ALSA_DUMMY_DEVICE = 'Dummy';
+const ALSA_VC4HDMI_SINGLE_DEVICE = 'vc4hdmi';
+const ALSA_EMPTY_CARD = 'empty';
+// ALSA names that can't be set directly in Audio Config
+const ALSA_RESERVED_NAMES = array(ALSA_LOOPBACK_DEVICE, ALSA_DUMMY_DEVICE);
+// ALSA default mixer names
+const ALSA_DEFAULT_MIXER_NAME_I2S = 'Digital';
+const ALSA_DEFAULT_MIXER_NAME_INTEGRATED = 'PCM';
+// ALSA output mode names
+const ALSA_OUTPUT_MODE_NAME = array('plughw' => 'Default', 'hw' => 'Direct', 'iec958' => 'IEC958');
+// ALSA HDMI IEC958
+const ALSA_IEC958_DEVICE = 'default:vc4hdmi';
+const ALSA_IEC958_FORMAT = 'IEC958_SUBFRAME_LE';
+
+// Friendly name to display in Output device field in Audio Config
+const TRX_SENDER_NAME = 'Multiroom sender';
+
+// Input select devices
+const INP_SELECT_DEVICES = array(
+    'HiFiBerry DAC+ ADC',
+    'Audiophonics ES9028/9038 DAC'
+);
+
+// Library Saved Searches
+const LIBSEARCH_BASE = '/var/local/www/libsearch_';
+const LIB_FULL_LIBRARY = 'Full Library (Default)';
+
+// Month names
+const MONTH_NAME = array(
+	'01' => 'January',
+	'02' => 'February',
+	'03' => 'March',
+	'04' => 'April',
+	'05' => 'May',
+	'06' => 'June',
+	'07' => 'July',
+	'08' => 'August',
+	'09' => 'September',
+	'10' => 'October',
+	'11' => 'Novenber',
+	'12' => 'December'
+);
+
+// Netmask to CIDR table
+const CIDR_TABLE = array(
+    "255.255.255.255" => '32',
+    "255.255.255.254" => '31',
+    "255.255.255.252" => '30',
+    "255.255.255.248" => '29',
+    "255.255.255.240" => '28',
+    "255.255.255.224" => '27',
+    "255.255.255.192" => '26',
+    "255.255.255.128" => '25',
+    "255.255.255.0" => '24',
+    "255.255.254.0" => '23',
+    "255.255.252.0" => '22',
+    "255.255.248.0" => '21',
+    "255.255.240.0" => '20',
+    "255.255.224.0" => '19',
+    "255.255.192.0" => '18',
+    "255.255.128.0" => '17',
+    "255.255.0.0" => '16',
+    "255.254.0.0" => '15',
+    "255.252.0.0" => '14',
+    "255.248.0.0" => '13',
+    "255.240.0.0" => '12',
+    "255.224.0.0" => '11',
+    "255.192.0.0" => '10',
+    "255.128.0.0" => '9',
+    "255.0.0.0" => '8',
+    "254.0.0.0" => '7',
+    "252.0.0.0" => '6',
+    "248.0.0.0" => '5',
+    "240.0.0.0" => '4',
+    "224.0.0.0" => '3',
+    "192.0.0.0" => '2',
+    "128.0.0.0" => '1',
+    "0.0.0.0" => '0'
+);
+
+// Used by security chk functions
+const SHL_CMDS = array('base64');
+const SQL_CMDS = array('delete ', 'select ', 'union ', 'update ', 'drop ');
+const XSS_CMDS = array('script', 'href', 'img src'); // May use in future
+
+// Recorder plugin (currently n/a)
+const RECORDER_RECORDINGS_DIR 	 = '/Recordings';
+const RECORDER_DEFAULT_COVER	 = 'Recorded Radio.jpg';
+const RECORDER_DEFAULT_ALBUM_TAG = 'Recorded YYYY-MM-DD';

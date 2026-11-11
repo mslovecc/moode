@@ -1,0 +1,421 @@
+<!--
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+-->
+<div id="container">
+<div class="container">
+	<h1 class="per-config">Peripherals</h1>
+
+	<form class="form-horizontal" method="post">
+		<div class="control-group">
+			<legend>Attached Displays</legend>
+
+			<p class="sub-legend">
+				Show the moOde WebUI or PeppyMeter on an attached display.
+				Both HDMI and DSI attached displays are supported.
+				There are settings in common between these two types of displays in the General settings section.
+				Specific settings for each type are in their respective sections.
+			</p>
+
+			<div class="control-group $_feat_localdisplay">
+				<div class="config-horiz-rule">moOde WebUI</div>
+
+				<label class="control-label">WebUI</label>
+				<div class="controls">
+					<div class="toggle">
+						<label class="toggle-radio toggle-local-display" for="toggle-local-display-2">ON </label>$_select[local_display_on]
+						<label class="toggle-radio toggle-local-display" for="toggle-local-display-1">OFF</label>$_select[local_display_off]
+					</div>
+					<button id="btn-set-local-display" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_local_display" value="novalue" $_webui_on_off_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-local-display" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					$_screen_res_local_display
+					<span id="info-local-display" class="config-help-info">
+						Show the moOde WebUI on a locally attached display.
+					</span>
+				</div>
+
+				<label class="control-label" for="local-display-url">Target URL</label>
+				<div class="controls">
+					<input id="local-display-url" class="config-input-large" type="text" pattern="^((?!:\d+).)*$" name="local_display_url" value="$_select[local_display_url]">
+					<button id="btn-set-local-display-url" class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_local_display_url" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-local-display-url" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-local-display-url" class="config-help-info">
+						This setting can be used to support a dual-display configuration where one display shows PeppyMeter
+						and the other display shows the WebUI/CoverView. It requires two moOde players.<br>
+						1. THIS_MOODE: which has a locally attached display showing PeppyMeter.<br>
+						2. OTHER_MOODE: which is connected to a large display.<br>
+						In this case OTHER_MOODE sets "Target URL" to "http://THIS_MOODE/" to show that player's WebUI/CoverView.<br>
+						If you want this player to show its own WebUI set "Target URL" to the default $_default_webui_display_url
+					</span>
+				</div>
+
+				<div class="controls">
+					<button class="btn btn-primary btn-medium config-btn btn-submit" type="submit" name="update_toggle_coverview" value="novalue" $_webui_ctl_disable>Toggle</button>
+					<span class="config-btn-after">CoverView</span>
+					<span class="config-help-static">
+						Coverview is: $_coverview_onoff
+					</span>
+				</div>
+
+				<div class="controls">
+					<a data-toggle="modal" href="#restart-local-display" $_link_disable><button class="btn btn-medium btn-primary config-btn" $_webui_ctl_disable>Restart</button></a>
+					<span class="config-btn-after">Local Display</span>
+				</div>
+
+				<label class="control-label">Disable GPU</label>
+				<div class="controls">
+					<div class="toggle">
+						<label class="toggle-radio toggle-disable-gpu-chromium" for="toggle-disable-gpu-chromium-2">ON </label>$_select[disable_gpu_chromium_on]
+						<label class="toggle-radio toggle-disable-gpu-chromium" for="toggle-disable-gpu-chromium-1">OFF</label>$_select[disable_gpu_chromium_off]
+					</div>
+					<button id="btn-set-disable-gpu-chromium" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_disable_gpu_chromium" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-disable-gpu-chromium" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-disable-gpu-chromium" class="config-help-info">
+						Disable the GPU for Chromium if the WebUI knob sliders on Pi-2 or Pi-3 are missing or there are any other display artifacts.
+					</span>
+				</div>
+			</div>
+
+			<div class="control-group $_feat_peppydisplay">
+				<div class="config-horiz-rule">Peppy Meter/Spectrum</div>
+
+				<label class="control-label">Peppy</label>
+				<div class="controls">
+					<div class="toggle">
+						<label class="toggle-radio toggle-peppy-display" for="toggle-peppy-display-2">ON </label>$_select[peppy_display_on]
+						<label class="toggle-radio toggle-peppy-display" for="toggle-peppy-display-1">OFF</label>$_select[peppy_display_off]
+					</div>
+					<button id="btn-set-peppy-display" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_peppy_display" value="novalue" $_peppy_on_off_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-peppy-display" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					$_screen_res_peppy_display
+					<span id="info-peppy-display" class="config-help-info">
+						Show Peppy Meter or Spectrum on a locally attached display.<br>
+						Note: If Crossfeed, Graphic or Parametric EQ is on, Peppy cannot be turned on if:<br>
+						- Playing to a Bluetooth speaker.<br>
+						- ALSA output mode is set to "Default".
+					</span>
+				</div>
+
+				<label class="control-label" for="peppy-display-type">Type</label>
+				<div class="controls">
+					<select id="peppy-display-type" class="config-select-large" name="peppy_display_type" onchange="autoClick('#btn-set-peppy-display-type');" $_peppy_ctl_disable>
+						$_select[peppy_display_type]
+					</select>
+					<button id="btn-set-peppy-display-type" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_peppy_display_type" value="novalue" $_peppy_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-peppy-display-type" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-peppy-display-type" class="config-help-info">
+						Choose between VU Meter and Spectrum displays.
+					</span>
+				</div>
+
+				<div class="controls">
+					<a data-toggle="modal" href="#restart-peppy-display" $_peppy_link_disable><button class="btn btn-medium btn-primary config-btn" $_peppy_ctl_disable>Restart</button></a>
+					<span class="config-btn-after">Peppy Display</span>
+				</div>
+
+				<div class="controls">
+					<a href="peppy-config.php"><button class="btn btn-medium btn-primary config-btn">Edit</button></a>
+					<span class="config-btn-after">Meter/Spectrum settings</span>
+				</div>
+
+				<label class="control-label">PeppyALSA</label>
+				<div class="controls">
+					<div class="toggle">
+						<label class="toggle-radio toggle-enable-peppyalsa" for="toggle-enable-peppyalsa-2">ON </label>$_select[enable_peppyalsa_on]
+						<label class="toggle-radio toggle-enable-peppyalsa" for="toggle-enable-peppyalsa-1">OFF</label>$_select[enable_peppyalsa_off]
+					</div>
+					<button id="btn-set-enable-peppyalsa" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_enable_peppyalsa" value="novalue" $_peppyalsa_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-enable-peppyalsa" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-enable-peppyalsa" class="config-help-info">
+						Adds PeppyALSA as a standalone driver to the audio chain. This allows user written programs to switch between WebUI and Peppy display using the command: <b>sudo moodeutl --setdisplay [webui | peppy].</b>
+					</span>
+				</div>
+
+				<label class="control-label">Display on play</label>
+				<div class="controls">
+					<div class="toggle">
+						<label class="toggle-radio toggle-touchmon-svc" for="toggle-touchmon-svc-2">ON </label>$_select[touchmon_svc_on]
+						<label class="toggle-radio toggle-touchmon-svc" for="toggle-touchmon-svc-1">OFF</label>$_select[touchmon_svc_off]
+					</div>
+					<button id="btn-set-touchmon-svc" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_touchmon_svc" value="novalue" $_touchmon_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-touchmon-svc" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-touchmon-svc" class="config-help-info">
+						Displays Peppy meter when MPD starts playing (after a configurable timeout). Touching the display switches immediately to the WebUI.
+						If a touch does not occur within the timeout period the display switches back to Peppy.<br>
+						<b>Note:</b> Requires PeppyALSA ON.
+					</span>
+				</div>
+
+				<label class="control-label" for="touchmon-timeout">Timeout (secs)</label>
+				<div class="controls">
+					<select id="touchmon-timeout" class="config-select-large" name="touchmon_timeout" onchange="autoClick('#btn-set-touchmon-timeout');" $_touchmon_ctl_disable>
+						$_select[touchmon_timeout]
+					</select>
+					<button id="btn-set-touchmon-timeout" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_touchmon_timeout" value="novalue" $_touchmon_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-touchmon-timeout" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-touchmon-timeout" class="config-help-info">
+						When the WebUI is displayed and MPD playback starts playback this timeout determines
+						when the display will be switched to Peppy meter if no touch occurs.<br>
+						<b>Note:</b> Requires PeppyALSA ON.
+					</span>
+				</div>
+			</div>
+
+ 			<div class="config-horiz-rule">General settings</div>
+
+			<label class="control-label" for="scn-blank">Screen blank</label>
+			<div class="controls">
+				<select id="scn-blank" class="config-select-large" name="scn_blank" onchange="autoClick('#btn-set-scn-blank');">
+					$_select[scn_blank]
+				</select>
+				<button id="btn-set-scn-blank" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_scn_blank" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-scn-blank" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-scn-blank" class="config-help-info">
+					When playback has stopped the display will be turned off after the specified time period.
+				</span>
+			</div>
+
+			<label class="control-label">Wake on play</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-wake-display" for="toggle-wake-display-2">ON </label>$_select[wake_display_on]
+					<label class="toggle-radio toggle-wake-display" for="toggle-wake-display-1">OFF</label>$_select[wake_display_off]
+				</div>
+				<button id="btn-set-wake-display" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_wake_display" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-wake-display" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-wake-display" class="config-help-info">
+					Wake the display when audio starts playing.
+				</span>
+			</div>
+
+			<label class="control-label">Mouse cursor</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-scn-cursor" for="toggle-scn-cursor-2">ON </label>$_select[scn_cursor_on]
+					<label class="toggle-radio toggle-scn-cursor" for="toggle-scn-cursor-1">OFF</label>$_select[scn_cursor_off]
+				</div>
+				<button id="btn-set-scn-cursor" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_scn_cursor" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-scn-cursor" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-scn-cursor" class="config-help-info">
+					Show or hide the cursor.
+				</span>
+			</div>
+
+			<label class="control-label">Popup keyboard</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-on-screen-kbd" for="toggle-on-screen-kbd-2">ON </label>$_select[on_screen_kbd_on]
+					<label class="toggle-radio toggle-on-screen-kbd" for="toggle-on-screen-kbd-1">OFF</label>$_select[on_screen_kbd_off]
+				</div>
+				<button id="btn-set-on-screen-kbd" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_on_screen_kbd" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-on-screen-kbd" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-on-screen-kbd" class="config-help-info">
+					On-screen popup keyboard by @Nutul.
+				</span>
+			</div>
+
+			<div class="config-horiz-rule">HDMI displays</div>
+
+			<label class="control-label" for="hdmi-scn-orient">Screen Orientation</label>
+			<div class="controls">
+				<select id="hdmi-scn-orient" class="config-select-large" name="hdmi_scn_orient" onchange="autoClick('#btn-set-hdmi-scn-orient');">
+					$_select[hdmi_scn_orient]
+				</select>
+				<button id="btn-set-hdmi-scn-orient" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_hdmi_scn_orient" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-hdmi-scn-orient" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-hdmi-scn-orient" class="config-help-info">
+					Change between Landscape and Portrait orientation. Assumes Landscape is the native orientation.
+				</span>
+			</div>
+
+			<label class="control-label">CEC control</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-hdmi-cec" for="toggle-hdmi-cec-2">ON </label>$_select[hdmi_cec_on]
+					<label class="toggle-radio toggle-hdmi-cec" for="toggle-hdmi-cec-1">OFF</label>$_select[hdmi_cec_off]
+				</div>
+				<button id="btn-set-hdmi-cec" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_hdmi_cec" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-hdmi-cec" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-hdmi-cec" class="config-help-info">
+					Automatically turn the display on when moOde starts or when wake on play is initiated. Turn the display off when moOde is shutdown.
+				</span>
+			</div>
+
+			<label class="control-label" for="hdmi-cec-ver">CEC version</label>
+			<div class="controls">
+				<select id="hdmi-cec-ver" class="config-select-large" name="hdmi_cec_ver" onchange="autoClick('#btn-set-hdmi-cec-ver');">
+					$_select[hdmi_cec_ver]
+				</select>
+				<button id="btn-set-hdmi-cec-ver" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_hdmi_cec_ver" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-hdmi-cec-ver" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-hdmi-cec-ver" class="config-help-info">
+					Set the CEC version to be used. Older devices may require CEC version 1.4.
+				</span>
+			</div>
+
+			<label class="control-label">4K 60Hz rate</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-hdmi-enable-4kp60" for="toggle-hdmi-enable-4kp60-2">ON </label>$_select[hdmi_enable_4kp60_on]
+					<label class="toggle-radio toggle-hdmi-enable-4kp60" for="toggle-hdmi-enable-4kp60-1">OFF</label>$_select[hdmi_enable_4kp60_off]
+				</div>
+				<button id="btn-set-hdmi-enable-4kp60" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_hdmi_enable_4kp60" value="novalue" $_hdmi_4kp60_btn_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-hdmi-enable-4kp60" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-hdmi-enable-4kp60" class="config-help-info">
+					By default, when connected to a 4K monitor, the Raspberry Pi 4B, 400 and CM4 will select a 30Hz refresh rate. Use this option to allow selection of 60Hz refresh rates.
+				</span>
+			</div>
+
+			<div class="config-horiz-rule">DSI displays (Pi Touch1/Touch2)</div>
+
+			<label class="control-label" for="dsi-scn-type">Type</label>
+			<div class="controls">
+				<select id="dsi-scn-type" class="config-select-large" name="dsi_scn_type" onchange="autoClick('#btn-set-dsi-scn-type');">
+					$_select[dsi_scn_type]
+				</select>
+				<button id="btn-set-dsi-scn-type" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_dsi_scn_type" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+			</div>
+
+			<label class="control-label" for="dsi-port">DSI port</label>
+			<div class="controls">
+				<select id="dsi-port" class="config-select-large" name="dsi_port" onchange="autoClick('#btn-set-dsi-port');" $_dsi_ctl_disable>
+					$_select[dsi_port]
+				</select>
+				<button id="btn-set-dsi-port" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_dsi_port" value="novalue" $_dsi_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+			</div>
+
+			<label class="control-label" for="dsi-scn-brightness">Brightness</label>
+			<div class="controls">
+				<input class="config-input-large" type="number" maxlength="3" min="$_dsi_scn_brightness_min" max="$_dsi_scn_brightness_max" id="dsi-scn-brightness" name="dsi_scn_brightness" value="$_select[dsi_scn_brightness]" $_dsi_ctl_disable>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_dsi_scn_brightness" value="novalue" $_dsi_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<span class="config-help-static">
+					Note: The Pi Touch 2 has a brightness range of 1-31.
+				</span>
+			</div>
+
+			<label class="control-label" for="dsi-scn-rotate">Rotate</label>
+			<div class="controls">
+				<select id="dsi-scn-rotate" class="config-select-large" name="dsi_scn_rotate" onchange="autoClick('#btn-set-dsi-scn-rotate');" $_dsi_ctl_disable>
+					$_select[dsi_scn_rotate]
+				</select>
+				<button id="btn-set-dsi-scn-rotate" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_dsi_scn_rotate" value="novalue" $_dsi_ctl_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<legend>Volume controllers</legend>
+
+			<label class="control-label">Triggerhappy</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-usb-volknob" for="toggle-usb-volknob-2">ON </label>$_select[usb_volknob_on]
+					<label class="toggle-radio toggle-usb-volknob" for="toggle-usb-volknob-1">OFF</label>$_select[usb_volknob_off]
+				</div>
+				<button id="btn-set-usb-volknob" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_usb_volknob" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-usb-volknob" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span class="config-help-static">
+					Activates the triggerhappy key mapping daemon for USB volume knobs or other USB input devices.
+				</span>
+				<span id="info-usb-volknob" class="config-help-info">
+					Refer to /etc/triggerhappy/triggers.d/media.conf for key/event mappings.
+				</span>
+			</div>
+
+			<label class="control-label">Rotary encoder</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-rotaryenc" for="toggle-rotaryenc-2">ON </label>$_select[rotaryenc_on]
+					<label class="toggle-radio toggle-rotaryenc" for="toggle-rotaryenc-1">OFF</label>$_select[rotaryenc_off]
+				</div>
+				<button id="btn-set-rotaryenc" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_rotenc" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-rotaryenc" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-rotaryenc" class="config-help-info">
+					Enable a rotary encoder device to control MPD volume.
+				</span>
+			</div>
+
+			<label class="control-label" for="rotenc-params">Encoder settings</label>
+			<div class="controls">
+				<input class="config-input-large" type="text" id="rotenc-params" name="rotenc_params" value="$_select[rotenc_params]" required>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_rotenc_params" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-rotaryenc-params" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-rotaryenc-params" class="config-help-info">
+					Encoder settings (positional)<br>
+					- <b>Poll interval:</b> Number of ms sleep for the volume update polling loop. Default = 100.<br>
+					- <b>Speed factor:</b> Threshold (diff betw last/current enc pos) to determine whether to use 1 step or volume_step steps. Default = 2.<br>
+					- <b>Volume_step:</b> Number of steps to use when knob turns at fast rate. Default = 3.<br>
+					- <b>Pin_A Pin_B:</b> Broadcom SoC pin numbers. Default = 23 24.
+				</span>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<legend>Other peripherals</legend>
+
+			<div class="$_feat_gpio">
+				<label class="control-label">GPIO buttons</label>
+				<div class="controls">
+					<div class="toggle">
+						<label class="toggle-radio toggle-gpio-svc" for="toggle-gpio-svc-2">ON </label>$_select[gpio_svc_on]
+						<label class="toggle-radio toggle-gpio-svc" for="toggle-gpio-svc-1">OFF</label>$_select[gpio_svc_off]
+					</div>
+					<button id="btn-set-gpio-svc" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_gpio_svc" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+					<a aria-label="Help" class="config-info-toggle" data-cmd="info-gpio-svc" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+					<span id="info-gpio-svc" class="config-help-info">
+						Maps attached hardware buttons to MPD playback or other commands. By @Cyanoazimin.
+					</span>
+				</div>
+
+				<div class="controls">
+					<a href="gpio-config.php"><button class="btn btn-medium btn-primary config-btn">Edit</button></a>
+					<span class="config-btn-after">GPIO pin mappings</span>
+				</div>
+			</div>
+
+			<label class="control-label">LCD updater</label>
+			<div class="controls">
+				<div class="toggle">
+					<label class="toggle-radio toggle-lcdup" for="toggle-lcdup-2">ON </label>$_select[lcdup_on]
+					<label class="toggle-radio toggle-lcdup" for="toggle-lcdup-1">OFF</label>$_select[lcdup_off]
+				</div>
+				<button id="btn-set-lcdup" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_lcdup" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-lcdup" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-lcdup" class="config-help-info">
+					The LCD update daemon monitors the Metadata file /var/local/www/currentsong.txt.
+					When changes are detected it runs a Python script named lcd-updater.py located
+					in the /var/local/www/commandw/ directory.<br>
+					<b>NOTE:</b> The Metadata file is automatically turned on when LCD updater is turned on.
+				</span>
+			</div>
+		</div>
+	</form>
+</div>
+</div>
+
+<form class="form-horizontal" method="post">
+	<div id="restart-local-display" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="restart-local-display-label" aria-hidden="true">
+		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Restart Local Display?</h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Cancel</button>
+			<button class="btn btn-primary btn-submit" type="submit" name="update_restart_local_display" value="novalue">Yes</button>
+		</div>
+	</div>
+</form>
+
+<form class="form-horizontal" method="post">
+	<div id="restart-peppy-display" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="restart-peppy-display-label" aria-hidden="true">
+		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Restart Peppy Display?</h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Cancel</button>
+			<button class="btn btn-primary btn-submit" type="submit" name="update_restart_peppy_display" value="novalue">Yes</button>
+		</div>
+	</div>
+</form>

@@ -1,0 +1,211 @@
+<?php
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+
+require_once __DIR__ . '/common.php';
+
+// Local display
+function startLocalDisplay() {
+	sysCmd('systemctl start localdisplay');
+}
+function stopLocalDisplay() {
+	sysCmd('systemctl stop localdisplay');
+}
+
+// Peppy display
+function createPeppyFifoPipes () {
+	$pipeMeter = "/tmp/peppymeter";
+	$pipeSpectrum = "/tmp/peppyspectrum";
+	sysCmd('mkfifo ' . $pipeMeter . ' ' . $pipeSpectrum);
+	sysCmd('chown root:root ' . $pipeMeter . ' ' . $pipeSpectrum);
+	sysCmd('chmod 0666 ' . $pipeMeter . ' ' . $pipeSpectrum);
+}
+function hidePeppyConf() {
+	sysCmd('mv ' . ALSA_PLUGIN_PATH . '/peppy.conf ' .ALSA_PLUGIN_PATH . '/peppy.conf.hide');
+}
+function unhidePeppyConf() {
+	sysCmd('mv ' . ALSA_PLUGIN_PATH . '/peppy.conf.hide ' .ALSA_PLUGIN_PATH . '/peppy.conf');
+}
+function restartMpdAndRenderers($resetAlsaCtl) {
+	// Restart MPD
+	$MpdWasPlaying = sysCmd('mpc status | grep "\[playing\]"');
+
+	sysCmd('systemctl stop mpd');
+	if ($resetAlsaCtl === true) {
+		sysCmd('alsactl clean ' . $_SESSION['cardnum']); // Clean (reset) application controls
+		sysCmd('alsactl init ' . $_SESSION['cardnum']); // Initialize driver to a default state
+	}
+	sysCmd('systemctl start mpd');
+	// Ensure MPD ready to accept connections
+	if (false === ($sock = openMpdSock('localhost', 6600))) {
+		workerLog('CRITICAL ERROR: restartMpdAndRenderers(): Connection to MPD failed');
+	} else {
+		closeMpdSock($sock);
+	}
+
+	if (!empty($MpdWasPlaying)) {
+		sysCmd('mpc play');
+	}
+
+	// Restart renderers
+	if ($_SESSION['airplaysvc'] == 1) {
+		stopAirPlay();
+		startAirPlay();
+	}
+	if ($_SESSION['spotifysvc'] == 1) {
+		stopSpotify();
+		startSpotify();
+	}
+	if ($_SESSION['qobuzsvc'] == 1) {
+		stopQobuz();
+		startQobuz();
+	}
+	if ($_SESSION['soloistsvc'] == 1) {
+		stopSoloist();
+		startSoloist();
+	}
+}
+function allowPeppyInAlsaChain() {
+	// NOTE: MPD cant play ALSA chain: _audioout -> [alsaequal or eqfa12p] -> peppy -> btstream
+	if ($_SESSION['audioout'] == 'Bluetooth' && ($_SESSION['alsaequal'] != 'Off' || $_SESSION['eqfa12p'] != 'Off')) {
+		$allowPeppy = false;
+	} else {
+		$allowPeppy = true;
+	}
+	return $allowPeppy;
+}
+function allowDspInAlsaChain() {
+	if ($_SESSION['audioout'] == 'Bluetooth' && $_SESSION['peppy_display'] == '1') {
+		$allowDsp = false;
+	} else {
+		$allowDsp = true;
+	}
+	return $allowDsp;
+}
+function getPeppyConfig($type) {
+	$configFile = $type == 'meter' ? PEPPY_METER_ETC_DIR . '/config.txt' : PEPPY_SPECTRUM_ETC_DIR . '/config.txt';
+	return parseDelimFile(file_get_contents($configFile), ' = ');
+}
+function putPeppyConfig($configArray) {
+	foreach ($configArray as $key => $value) {
+		chkValue($key, $value);
+		switch ($key) {
+			case 'screen_width':
+				$param = 'screen.width';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'screen_height':
+				$param = 'screen.height';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'random_interval':
+				$param = 'random.meter.interval';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				$param = 'update.period';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_SPECTRUM_ETC_DIR . '/config.txt');
+				break;
+			case 'meter_folder':
+				$param = 'meter.folder';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'meter_name':
+				$param = 'meter =';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'meter_normalization':
+				$param = 'volume.max.in.pipe';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . number_format($value, 1) . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'meter_curve':
+				$param = 'volume.curve';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . number_format($value, 1) . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'frame_rate':
+				$param = 'frame.rate';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				//sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_SPECTRUM_ETC_DIR . '/config.txt');
+				break;
+			case 'polling_interval':
+				$param = 'polling.interval';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				//$param = 'update.ui.interval';
+				//sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_SPECTRUM_ETC_DIR . '/config.txt');
+				break;
+			case 'smooth_buffer_size':
+				$param = 'smooth.buffer.size';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_METER_ETC_DIR . '/config.txt');
+				break;
+			case 'spectrum_folder':
+				$param = 'spectrum.folder';
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' = ' . $value . '/', PEPPY_SPECTRUM_ETC_DIR . '/config.txt');
+				break;
+			case 'spectrum_name':
+				$param = 'spectrum =';
+				$value = $value == 'random' ? '' : $value;
+				sysCmdSed('s/^' . $param . '.*/' . $param . ' ' . $value . '/', PEPPY_SPECTRUM_ETC_DIR . '/config.txt');
+				break;
+		}
+	}
+}
+function getPeppyFolderList($type) {
+	$peppyBaseDir = $type == 'meter' ? PEPPY_METER_OPT_DIR : PEPPY_SPECTRUM_OPT_DIR;
+	$array = glob($peppyBaseDir . '/*/', GLOB_ONLYDIR);
+	sort($array, SORT_NATURAL);
+	return $array;
+}
+function getPeppyFolderContents($type, $contentDir) {
+	$peppyBaseDir = $type == 'meter' ? PEPPY_METER_OPT_DIR : PEPPY_SPECTRUM_OPT_DIR;
+	$configFile = $type == 'meter' ? 'meters.txt' : 'spectrum.txt';
+	// Get all [name] items
+	$items = sysCmd('cat ' . $peppyBaseDir . '/' . $contentDir . '/' . $configFile . ' | grep "]"');
+	// Strip the brackets and add comma separator
+	foreach ($items as $item) {
+		$item = rtrim(ltrim($item, '['), ']');
+		$itemList .= $item . ', ';
+	}
+	$itemList = rtrim($itemList, ', ');
+
+	return $itemList;
+}
+
+// LCD updater
+function startLcdUpdater() {
+	sysCmd('/var/www/daemon/lcd-updater.sh');
+}
+
+// Peppy meter gain monitor
+function startPeppyGainMon() {
+	stopPeppyGainMon();
+	// Keep stderr: a daemon dying silently leaves the meter on a stale gain with nothing
+	// to show for it
+	sysCmd('/var/www/daemon/peppy-gain.php >> ' . PEPPY_GAIN_MON_LOG . ' 2>&1 &');
+}
+function stopPeppyGainMon() {
+	// Match the path, not the command: the process is "php", killall php would take the web
+	// app down. The [.] keeps the pattern from matching the shell that runs pkill itself.
+	sysCmd('pkill -f "peppy-gain[.]php" > /dev/null 2>&1');
+	// The monitor is a child of the above and its command line carries none of that path,
+	// so it outlives the kill and leaks one process per bounce
+	sysCmd('pkill -f "alsactl[ ]monitor hw:" > /dev/null 2>&1');
+}
+
+// GPIO button handler
+function startGpioBtnHandler() {
+	sysCmd('/var/www/daemon/gpio_buttons.py ' . GPIOBUTTONS_SLEEP . ' > /dev/null &');
+}
+
+function setScreenBlankTimeout($timeoutValue) {
+	$timeoutValueSsav = $timeoutValue == 'off' ? 'off' : $timeoutValue . ' 0';
+	$timeoutValueDpms = $timeoutValue == 'off' ? '0' : $timeoutValue;
+	sysCmdSed('s/xset s.*/xset s ' . $timeoutValueSsav . '/', $_SESSION['home_dir'] . '/.xinitrc');
+	sysCmdSed('s/xset dpms.*/xset dpms ' . $timeoutValueDpms . ' 0 0/', $_SESSION['home_dir'] . '/.xinitrc');
+}
+
+function cecControl($cecCmd) {
+	$cecPhysicalAddress = trim(sysCmd('cec-ctl --skip-info --physical-address')[0]);
+	$cecVersion = $_SESSION['hdmi_cec_ver'] == '1.4' ? '--cec-version-1.4' : '';
+	sysCmd('cec-ctl --skip-info --to 0 --active-source phys-addr=' . $cecPhysicalAddress);
+	sysCmd('cec-ctl --skip-info --to 0 ' . $cecVersion . ' ' . $cecCmd);
+}

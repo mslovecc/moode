@@ -1,0 +1,107 @@
+<!--
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+*/
+-->
+<div id="container">
+<div class="container">
+	<h1 class="ren-config">Bluetooth Control</h1>
+
+	<form class="form-horizontal" action="" method="post">
+		<legend>Devices</legend>
+		<div class="control-group">
+			<select id="btcmd" class="config-select-large" name="btcmd" onchange="autoClick('#btn-set-cmd');" $_ctl_disabled>
+				$_cmd[btcmd]
+			</select>
+			<button id="btn-set-cmd" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="run_btcmd" value="1" $_ctl_disabled>Submit</button>
+			<a aria-label="Help" class="config-info-toggle" data-cmd="info-btcmd" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+			<span id="info-btcmd" class="config-help-info">
+				Select a command to submit to the Bluetooth controller.
+			</span>
+			<div id="blu-control-cmd-output">
+				$_cmd_output
+			</div>
+
+			<div class="$_hide_ctl[paired_device]">
+				<select id="paired-device" class="config-select-large" name="paired_device">
+					$_device[paired_device]
+				</select>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="connectto_device" value="1">Connect</button>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" style="margin-right:0" type="submit" name="rm_paired_device" value="1">Forget</button>
+			</div>
+
+			<div class="$_hide_ctl[connected_device]">
+				<select id="connected-device" class="config-select-large" name="connected_device">
+					$_device[connected_device]
+				</select>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="disconnect_device" value="1">Disconnect</button>
+			</div>
+
+			<div class="$_hide_ctl[scanned_device]">
+				<select id="scanned-device" class="config-select-large" name="scanned_device">
+					$_device[scanned_device]
+				</select>
+				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="pairwith_device" value="1">Pair</button>
+			</div>
+
+			<div>
+				<select id="audioout" class="config-select-large" name="audioout" onchange="autoClick('#btn-set-audioout');">
+					$_select[audioout]
+				</select>
+				<button id="btn-set-audioout" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="change_audioout_bt" value="1"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<span class="config-input-after">Audio routing</span>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-audioout" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-audioout" class="config-help-info">
+					Route audio to the Local audio device or a remote Bluetooth speaker.
+				</span>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<legend>Options</legend>
+			<div>
+				<select id="pcm-buffer" class="config-select-large" name="pcm_buffer" onchange="autoClick('#btn-set-pcm-buffer');">
+					$_select[pcm_buffer]
+				</select>
+				<button id="btn-set-pcm-buffer" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_pcm_buffer" value="1"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<span class="config-input-after">PCM buffer</span>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-pcm-buffer" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-pcm-buffer" class="config-help-info">
+					Lower values reduce latency but may cause dropouts.
+				</span>
+			</div>
+
+			<div>
+				<select id="sbc-quality" class="config-select-large" name="sbc_quality" onchange="autoClick('#btn-set-sbc-quality');">
+					$_select[sbc_quality]
+				</select>
+				<button id="btn-set-sbc-quality" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_sbc_quality" value="1"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<span class="config-btn-after">SBC quality</span>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-sbc-quality" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-sbc-quality" class="config-help-info">
+					Higher settings improve quality but may cause dropouts.<br>
+					<b>Low:</b> Mono 114 kbps, Stereo 213 kbps<br>
+					<b>Medium:</b> Mono 132 kbps, Stereo 237 kbps<br>
+					<b>High:</b> Mono 198 kbps, Stereo 345 kbps<br>
+					<b>XQ:</b> SBC Dual Channel HD 452 kbps<br>
+					<b>XQ+:</b> SBC Dual Channel HD 551 kbps>
+				</span>
+			</div>
+
+			<div>
+				<select id="bluez-controller-mode" class="config-select-large" name="bluez_controller_mode" onchange="autoClick('#btn-set-bluez-controller-mode');">
+					$_select[bluez_controller_mode]
+				</select>
+				<button id="btn-set-bluez-controller-mode" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_bluez_controller_mode" value="1"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<span class="config-btn-after">Controller mode</span>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-bluez-controller-mode" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-bluez-controller-mode" class="config-help-info">
+					Sets the controller to the specified transport. The default mode is "Dual" which enables both
+					BR/EDR and LE transports.
+				</span>
+			</div>
+		</div>
+	</form>
+</div>
+</div>

@@ -1,0 +1,439 @@
+<?php
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2014 The moOde audio player project / Tim Curtis
+ * Copyright 2013 The tsunamp player ui / Andrea Coiutti & Simone De Gregori
+*/
+
+require_once __DIR__ . '/../inc/cdsp.php';
+require_once __DIR__ . '/../inc/common.php';
+require_once __DIR__ . '/../inc/mpd.php';
+require_once __DIR__ . '/../inc/multiroom.php';
+require_once __DIR__ . '/../inc/queue.php';
+require_once __DIR__ . '/../inc/session.php';
+require_once __DIR__ . '/../inc/sql.php';
+
+if (!isset($_GET['cmd']) || empty($_GET['cmd'])) {
+	echo 'Command is missing';
+	exit(1);
+}
+
+// DEBUG:
+//workerLog('index.php: $_GET[cmd]=' . $_GET['cmd']);
+
+chkValue('cmd', $_GET['cmd']);
+$dbh = sqlConnect();
+$cmd = explode(' ', $_GET['cmd']);
+
+switch ($cmd[0]) {
+	// REST API commands
+	case 'get_currentsong':
+		echo json_encode(parseDelimFile(file_get_contents('/var/local/www/currentsong.txt'), "="), JSON_FORCE_OBJECT);
+		break;
+	case 'get_output_format':
+		_openSessionReadOnly($dbh);
+		echo json_encode(array('format' => getALSAOutputFormat()), JSON_FORCE_OBJECT);
+		break;
+	case 'get_volume':
+		// NOTE: when scope is 'fixed', 'volume' still reports the saved knob level, not the 0dB output level
+		echo json_encode(getVolumeState($dbh));
+		break;
+	case 'set_volume': // N | -mute | -up N | -dn N
+		$volArgs = parseVolumeArgs(trim(getArgs($cmd, false)));
+		if ($volArgs === false) {
+			echo json_encode(array('alert' => 'Invalid volume command'));
+			break;
+		}
+		// A controllable renderer gets the command in this single call, renderer_ctl.py only acts if it can
+		$volState = getVolumeState($dbh, $volArgs['renderer']);
+		if ($volState['can_volume'] === false) {
+			echo json_encode(array('alert' => $volState['alert']));
+		} else if ($volArgs['renderer'] == 'mute' && $volState['can_mute'] === false) {
+			echo json_encode(array('alert' => 'Volume cannot be muted from moOde for ' . getSourceLabel($volState['source'])));
+		} else if ($volState['scope'] == 'source') {
+			// Renderer volume: no vol.sh, receivers are already at max for the session
+			echo json_encode($volState);
+		} else {
+			$volCmd = ' ' . $volArgs['vol.sh']; // Used below for multiroom parsing
+			$currentVol = sqlQuery("SELECT value FROM cfg_system WHERE param='volknob'", $dbh)[0]['value']; // Save for Receiver
+			$result = sysCmd('/var/www/util/vol.sh ' . $volArgs['vol.sh']);
+			// Receiver(s) volume
+			_openSessionReadOnly($dbh);
+			if ($_SESSION['multiroom_tx'] == 'On') {
+				if ($volCmd == ' -mute') {
+					$rxVolCmd = '-mute';
+				} else if (str_contains($volCmd, '-')) {
+					$rxVolCmd = trim($volCmd); // -up N | -dn N
+				} else {
+					$volDiff = $currentVol - trim($volCmd); // N
+					$rxVolCmd = $volDiff < 0 ? '-up ' . abs($volDiff) : '-dn ' . $volDiff;
+				}
+				updReceiverVol($rxVolCmd, true); // True = Master volume change
+			}
+
+			echo json_encode(getVolumeState($dbh));
+		}
+		break;
+	case 'clear_queue':
+		$sock = getMpdSock('command/index.php');
+		sendMpdCmd($sock, 'clear');
+		$resp = readMpdResp($sock);
+		break;
+	case 'play_item':
+	case 'play_item_next':
+		$item = trim(getArgs($cmd, false));
+
+		// Turn off auto-shuffle
+		_openSessionReadOnly($dbh);
+		if ($_SESSION['ashuffle'] == '1') {
+		    turnOffAutoShuffle($sock);
+		}
+
+		// Parse the item type
+		if (str_contains($item, 'RADIO') || str_contains($item, 'http')) {
+			$itemType = 'Station';
+		} else if (str_contains($item, '.m3u')) {
+			$itemType = 'Playlist';
+		} else if (!(str_contains($item, 'RADIO') || str_contains($item, '.'))) {
+			$itemType = 'Album';
+		} else {
+			$itemType = 'Track';
+		}
+		debugLog($cmd[0] . ': ' . $itemType . '|' . $item);
+
+		// Process by itemType
+		if ($itemType == 'Playlist' || $itemType == 'Album') {
+			// Clear Queue
+			$sock = getMpdSock('command/index.php');
+			sendMpdCmd($sock, 'clear');
+			$resp = readMpdResp($sock);
+
+			// Submit POST to queue.php
+			$item = $itemType == 'Playlist' ? rtrim($item, '.m3u') : $item;
+			$url = 'http://' . $_SESSION['ipaddress'] . '/command/queue.php?cmd=' . $cmd[0];
+			$options = array(
+				'http' => array(
+					'header'  => 'Content-type: application/x-www-form-urlencoded',
+					'method'  => 'POST',
+					'content' => http_build_query(array('path' => $item))
+				)
+			);
+			$context  = stream_context_create($options);
+			$result = file_get_contents($url, false, $context);
+			if ($result === false) {
+				debugLog($cmd[0] . ': file_get_contents(' . $url . ') failed');
+			} else {
+				debugLog($cmd[0] . ': file_get_contents(' . $url . ') succeeded');
+			}
+		} else if ($itemType == 'Station' || $itemType == 'Track') {
+			// Search the Queue for the item
+			$sock = getMpdSock('command/index.php');
+			$search = strpos($item, 'RADIO') !== false ? parseDelimFile(file_get_contents(MPD_MUSICROOT . $item), '=')['File1'] : $item;
+			$result = findInQueue($sock, 'file', $search);
+			if (isset($result['Pos'])) {
+				// Play already Queued item
+				sendMpdCmd($sock, 'play ' . $result['Pos']);
+				$resp = readMpdResp($sock);
+			} else {
+				// Otherwise play the item after adding it to the Queue
+				$status = getMpdStatus($sock);
+				$cmds = array(addItemToQueue($item));
+				if ($cmd[0] == 'play_item_next') {
+					$pos = isset($status['song']) ? $status['song'] + 1 : $status['playlistlength'];
+					array_push($cmds, 'move ' . $status['playlistlength'] . ' ' . $pos);
+				} else {
+					$pos = $status['playlistlength'];
+				}
+				array_push($cmds, 'play ' . $pos);
+				chainMpdCmds($sock, $cmds);
+			}
+		}
+		echo json_encode(array('info' => 'OK'));
+		break;
+	case 'toggle_play_pause':
+	case 'play':
+	case 'pause':
+	case 'stop':
+		if ($cmd[0] != 'toggle_play_pause' && count($cmd) > 1) {
+			// play SONGPOS, pause 0|1: MPD syntax, relayed as is
+			$sock = getMpdSock('command/index.php');
+			sendMpdCmd($sock, $_GET['cmd']);
+			echo json_encode(parseMpdRespAsJSON(readMpdResp($sock)), JSON_FORCE_OBJECT);
+			break;
+		}
+		if (isControllableRenderer(getActiveSource())) {
+			echo json_encode(rendererTransport($dbh, $cmd[0] == 'toggle_play_pause' ? 'toggle' : $cmd[0]));
+			break;
+		}
+		$sock = getMpdSock('command/index.php');
+		$status = getMpdStatus($sock);
+		$currentSong = getCurrentSong($sock);
+		$play = $cmd[0] == 'toggle_play_pause' ? $status['state'] != 'play' : $cmd[0] == 'play';
+		if ($cmd[0] == 'stop') {
+			$mpdCmd = 'stop';
+		} else if ($play) {
+			$mpdCmd = 'play';
+		} else if (substr($currentSong['file'], 0, 4) == 'http' && !isset($status['duration'])) {
+			// Radio station
+			$mpdCmd = 'stop';
+		} else {
+			// Song file
+			$mpdCmd = 'pause';
+		}
+		// Already in the requested state: nothing to send
+		if ($cmd[0] == 'stop' ? $status['state'] != 'stop' : $play != ($status['state'] == 'play')) {
+			sendMpdCmd($sock, $mpdCmd);
+		} else {
+			$mpdCmd = $status['state'];
+		}
+		echo json_encode(array('state' => $mpdCmd));
+		break;
+	case 'get_cdsp_config':
+		_openSessionReadOnly($dbh);
+		echo json_encode(array('config' => $_SESSION['camilladsp']));
+		break;
+	case 'set_cdsp_config':
+		$newConfig = trim(getArgs($cmd, false));
+		if (!empty($newConfig)) {
+			_openSession($dbh);
+			$currentConfig = $_SESSION['camilladsp'];
+			$cdsp = new CamillaDsp($_SESSION['camilladsp'], $_SESSION['cardnum'], $_SESSION['camilladsp_quickconv']);
+			// Validate arg
+			$validConfigName = false;
+			$configs = $cdsp->getAvailableConfigs();
+			foreach ($configs as $configFile => $configName) {
+				if ($newConfig == $configName) {
+					$validConfigName = true;
+					break;
+				}
+			}
+			if ($validConfigName) {
+				$newConfig = strtolower($newConfig) == 'off' ? 'off' : $newConfig . '.yml';
+				phpSession('write', 'camilladsp', $newConfig);
+				$cdsp->selectConfig($newConfig);
+				$cdsp->updCDSPConfig($newConfig, $currentConfig, $cdsp);
+				phpSession('close');
+				echo json_encode(array('config' => $_SESSION['camilladsp']));
+			} else {
+				echo json_encode(array('alert' => 'Invalid Configuration name'));
+			}
+		} else {
+			echo json_encode(array('alert' => 'Argument missing: Configuration name'));
+		}
+		break;
+	case 'get_eq_status':
+		$status = sysCmd('/var/www/util/eqctl.php status')[0];
+		echo json_encode(array('status' => $status));
+		break;
+	case 'set_eq_curve': // eq_type "curve_name" or curve_index
+		// $cmd: set_eq_curve graphic hi-lo boost
+		// eqctl.php graphic set "hi-lo boost"
+		// args: graphic hi-lo boost
+		$parts = explode(' ', trim(getArgs($cmd, false)), 2);
+		$status = sysCmd('/var/www/util/eqctl.php ' . escapeshellarg($parts[0]) . ' set ' . escapeshellarg($parts[1] ?? ''))[0];
+		if (str_contains($status, 'ERR')) {
+			$key = 'error';
+			$value = explode(': ', $status)[1];
+		} else if (str_contains($status, 'Usage')) {
+			$key = 'error';
+			$value = 'Invalid command arguments';
+		} else {
+			$key = 'status';
+			$value = $status;
+		}
+		echo json_encode(array($key => $value));
+		break;
+	case 'get_receiver_status': // -rx
+		$result = sysCmd('/var/www/util/trx-control.php -rx')[0];
+		echo json_encode(array('status' => $result));
+		break;
+	case 'set_receiver_onoff': // -on | -off
+		// Parse on/off state from status
+		$status = sysCmd('/var/www/util/trx-control.php -rx')[0];
+		$onoffState = explode(',', $status)[1];
+		// Process command
+		$onoffCmd = trim(getArgs($cmd, false));
+		$onoffCmd = $onoffCmd == '-on' ? 'On' : 'Off';
+		if ($onoffCmd != $onoffState) {
+			$result = sysCmd('/var/www/util/trx-control.php -rx ' . $onoffCmd)[0];
+			$result = sysCmd('/var/www/util/trx-control.php -rx')[0];
+			echo json_encode(array('status' => $result));
+		} else {
+			echo json_encode(array('alert' => 'Receiver is already ' . $onoffCmd));
+		}
+		break;
+	case 'set_coverview': // -on | -off
+		$cvState = sysCmd('/var/www/util/coverview.php' . getArgs($cmd, true))[0];
+		echo json_encode(array('info' => $cvState));
+		break;
+	case 'upd_library':
+		$result = sysCmd('/var/www/util/libupd-submit.php');
+		echo json_encode(array('info' => 'Library update submitted'));
+		break;
+	case 'restart_renderer': // --bluetooth | --airplay | --spotify | --qobuz | --soloist | --squeezelite | --roonbridge
+		$result = sysCmd('moodeutl -R' . getArgs($cmd, true));
+		echo $result[0] == 'Renderer restarted' ?
+			json_encode(array('info' => 'Renderer restart submitted')) :
+			json_encode(array('alert' => 'Missing or invalid argument'));
+		break;
+	case 'renderer_onoff': // --bluetooth | --airplay | --spotify | --qobuz | --soloist | --squeezelite | --roonbridge [on|off]
+		$result = sysCmd('moodeutl -Ro' . getArgs($cmd, true));
+		echo str_contains($result[0], 'Renderer turned') ?
+			json_encode(array('info' => 'Renderer ' . getArgs($cmd, false) . ' submitted')) :
+			json_encode(array('alert' => 'Missing or invalid argument'));
+		break;
+	case 'set_display': // webui | peppy | toggle
+		$result = sysCmd('moodeutl --setdisplay' . getArgs($cmd, true));
+		echo empty($result) ?
+			json_encode(array('info' => 'Set display to ' . getArgs($cmd, false) . ' submitted')) :
+			json_encode(array('alert' => $result[0]));
+		break;
+
+	// API commands
+	case 'trx_control': // Up to 3 args, result is status or empty, used by renderer event scripts
+		$result = sysCmd('/var/www/util/trx-control.php' . getArgs($cmd, true))[0];
+		echo $result;
+		break;
+
+	// MPD commands
+	case 'next':
+	case 'previous':
+		if (isControllableRenderer(getActiveSource())) {
+			echo json_encode(rendererTransport($dbh, $cmd[0]));
+			break;
+		}
+		// Other sources: fall through to the MPD relay
+	default:
+		if (false === ($sock = openMpdSock('localhost', 6600))) {
+			workerLog('CRITICAL ERROR: command/index.php: Connection to MPD failed');
+		} else {
+			sendMpdCmd($sock, $_GET['cmd']);
+			$resp = readMpdResp($sock);
+			echo json_encode(parseMpdRespAsJSON($resp), JSON_FORCE_OBJECT);
+		}
+}
+
+// Close MPD socket
+if (isset($sock) && $sock !== false) {
+	debugLog('command/index.php: closeMpdSock()');
+	closeMpdSock($sock);
+}
+
+// $shell: true when the returned string is concatenated into a sysCmd()/sysCmdStr()
+// call (shell-escape each arg with escapeshellarg()), false for args that are only
+// compared, displayed or written to session/DB (arg is returned as-is, after chkValue()).
+// No default - every call site must state which one it is.
+function getArgs($cmd, $shell) {
+	$argCount = count($cmd);
+
+	if ($argCount > 1) {
+		$args = '';
+		// Pre-existing off-by-one: this used to loop $argCount times over $cmd[$i + 1],
+		// one past the last real argument, silently appending an undefined-index warning
+		// and a harmless extra space. Fixed here because with $shell=true that extra
+		// iteration would instead append a spurious empty-string shell argument (''),
+		// which the escaping below would no longer let a receiving script ignore.
+		for ($i = 0; $i < $argCount - 1; $i++) {
+			chkValue('cmd', $cmd[$i + 1]);
+			$args .= ' ' . ($shell ? escapeshellarg($cmd[$i + 1]) : $cmd[$i + 1]);
+		}
+	} else {
+		$args = '';
+	}
+
+	return $args;
+}
+
+// Validated set_volume args (N | -mute | -up N | -dn N) for vol.sh and renderer_ctl.py, false if invalid
+function parseVolumeArgs($volCmd) {
+	if (preg_match('/^-(up|dn) ([0-9]+)$/', $volCmd, $match)) {
+		return array('vol.sh' => '-' . $match[1] . ' ' . $match[2], 'renderer' => $match[1] . ' ' . $match[2]);
+	} else if (preg_match('/^[0-9]+$/', $volCmd)) {
+		return array('vol.sh' => $volCmd, 'renderer' => 'set ' . $volCmd);
+	} else if ($volCmd == '-mute') {
+		return array('vol.sh' => '-mute', 'renderer' => 'mute');
+	}
+	return false;
+}
+
+// Active source, as named by the REST API
+function getActiveSource() {
+	$sources = array('' => 'mpd', 'inpactive' => 'input', 'btactive' => 'bluetooth',
+		'aplactive' => 'airplay', 'spotactive' => 'spotify', 'solactive' => 'soloist', 'qbzactive' => 'qobuz',
+		'slactive' => 'squeezelite', 'paactive' => 'plexamp', 'rbactive' => 'roonbridge');
+	return $sources[getActiveRenderer()];
+}
+function isControllableRenderer($source) {
+	return in_array($source, array('bluetooth', 'airplay', 'qobuz', 'squeezelite', 'soloist'));
+}
+function getSourceLabel($source) {
+	$labels = array('airplay' => 'AirPlay', 'roonbridge' => 'RoonBridge');
+	return isset($labels[$source]) ? $labels[$source] : ucfirst($source);
+}
+
+// Volume state of the current source: where the volume lives and what can be controlled
+// $rendererCmd: renderer_ctl.py command run first when the source is a controllable renderer
+function getVolumeState($dbh, $rendererCmd = 'get') {
+	$source = getActiveSource();
+
+	if (isControllableRenderer($source)) {
+		$state = array('volume' => null, 'muted' => 'no', 'source' => $source, 'scope' => 'source',
+			'can_volume' => false, 'can_mute' => false, 'can_transport' => false);
+		$result = json_decode(sysCmd('/var/www/util/renderer_ctl.py ' . $source . ' ' . $rendererCmd)[0], true);
+		if (is_array($result) && !isset($result['error'])) {
+			$state = array_merge($state, $result);
+		}
+		if ($state['can_volume'] === false) {
+			$state['alert'] = 'Volume cannot be changed from moOde for ' . getSourceLabel($source);
+		}
+		return $state;
+	}
+
+	$volume = sqlQuery("SELECT value FROM cfg_system WHERE param='volknob'", $dbh)[0]['value'];
+	$mute = sqlQuery("SELECT value FROM cfg_system WHERE param='volmute'", $dbh)[0]['value'];
+	$state = array('volume' => $volume, 'muted' => ($mute == '0' ? 'no' : 'yes'), 'source' => $source);
+
+	if ($source == 'mpd' || $source == 'input') {
+		$mixer = sqlQuery("SELECT value FROM cfg_system WHERE param='mpdmixer'", $dbh)[0]['value'];
+		$scopes = array('hardware' => 'dac', 'software' => 'mpd', 'null' => 'camilladsp', 'none' => 'fixed');
+		$state['scope'] = $scopes[$mixer];
+		$state['can_volume'] = $state['scope'] != 'fixed';
+		$state['can_mute'] = $state['can_volume'];
+		$state['can_transport'] = $source == 'mpd';
+		if ($state['can_volume'] === false) {
+			$state['alert'] = 'Volume cannot be changed when MPD volume type is Fixed (0dB)';
+		}
+	} else {
+		// Spotify, RoonBridge, Plexamp (RoonBridge and Plexamp untested)
+		$state['scope'] = 'source';
+		$state['can_volume'] = false;
+		$state['can_mute'] = false;
+		$state['can_transport'] = false;
+		$state['alert'] = 'Volume cannot be changed from moOde for ' . getSourceLabel($source);
+	}
+
+	return $state;
+}
+
+// Transport command (toggle | previous | next) sent to the active renderer
+function rendererTransport($dbh, $rendererCmd) {
+	$state = getVolumeState($dbh, $rendererCmd);
+	return $state['can_transport'] === true ? array('state' => isset($state['state']) ? $state['state'] : $rendererCmd) :
+		array('alert' => 'Playback cannot be controlled from moOde for ' . getSourceLabel($state['source']));
+}
+
+// We use these session functions instead of phpSession() because CLI based REST
+// commands sent for example by curl don't send the PHP session cookie containing
+// the sessionid as does a Browser. This results in bogus empty session files
+// being created in /var/local/php/ and no access to session vars
+function _openSession($dbh) {
+	$sessionID = sqlRead('cfg_system', $dbh, 'sessionid')[0]['value'];
+	session_id($sessionID);
+	session_start();
+}
+function _openSessionReadOnly($dbh) {
+	$sessionID = sqlRead('cfg_system', $dbh, 'sessionid')[0]['value'];
+	session_id($sessionID);
+	session_start();
+	session_write_close();
+}
