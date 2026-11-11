@@ -15,7 +15,7 @@
 ?>
 <!--endRemoveIf(GENINDEXDEV)-->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 	<title><?php echo $_SESSION['browsertitle']; ?></title>
 
