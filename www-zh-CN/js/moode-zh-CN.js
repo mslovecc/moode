@@ -2246,6 +2246,21 @@
   "How much audio to buffer before playback starts. A larger buffer can help reduce the likelyhood of audio glitches on a slow or poor quality network.": "开始播放前需要缓冲的音频量。较大的缓冲区有助于减少网络速度较慢或质量较差时出现的音频卡顿。",
   "This cache is populated with Title | URL for each cover thats fetched. If the WebUI is refreshed or that same Title is streamed again the cached URL will be used instead of performing a provider search.": "此缓存为每张获取的封面保存 Title | URL。如果刷新 WebUI，或再次播放具有相同标题的音频流，系统将使用缓存的 URL，而不再向服务提供商发起搜索。"
 });
+  // Additional Quick Help explanations for search, queue and multiroom.
+  Object.assign(dict, {
+  "USB, NVMe, and SATA drive mounts are automatically maintained in /etc/exports. Other storage locations must be manualy added.": "USB、NVMe 和 SATA 磁盘挂载点会自动维护在 /etc/exports 中。其他存储位置必须手动添加。",
+  "Player name popup. Note: This can take a while if there are a large number of number of tracks.": "播放器名称弹出窗口。注意：如果曲目数量较多，加载可能需要一些时间。",
+  "Powerful search features are available that allow the Library to be filtered based on entered text, tag value pairs or special, predefined filters. There is also an Advanced search dialog that enables multiple tag value pairs to be submitted.": "音乐库提供强大的搜索功能，可根据输入文字、标签/值组合或特殊预定义筛选器过滤内容。高级搜索对话框还支持同时提交多个标签/值组合。",
+  "The Any tag performs a search of all tags using an OR relationship. An Any search is automatically invoked when the first word of text entered in the \"search\" field does not match any of the tag or predefined filter names.": "Any 标签会以 OR（或）关系搜索所有标签。当在“搜索”字段输入的第一个词与任何标签或预定义筛选器名称都不匹配时，系统会自动执行 Any 搜索。",
+  "The CoverView screen saver provides a large sized cover art image or optional Analog or Digital clock, a Playbar for controlling playback and several backdrop options that can be selected in the CoverView section of Preferences.": "CoverView 屏幕保护程序可显示大尺寸封面图片或可选的模拟/数字时钟，并提供用于控制播放的播放栏。多种背景选项可在偏好设置的 CoverView 部分选择。",
+  "The \"Add\" command adds the item to the end of the Queue. The \"Play\" command first checks to see if the item is already in the Queue and then plays the existing item otherwise it does the same as Add and then begins play.": "“添加”命令会将项目添加到播放队列末尾。“播放”命令会先检查项目是否已在队列中；如果已存在，则播放该项目，否则执行与“添加”相同的操作并立即开始播放。",
+  "Sender and Receiver options are configured in Multiroom Config which is accessed via Menu/Configure or in the ALSA section of Audio Config. Audio sources including MPD, AirPlay and Spotify can be distributed by the Sender.": "发送端和接收端选项可在多房间配置中设置，该页面可通过“菜单/配置”或音频配置中的 ALSA 部分进入。发送端可分发 MPD、AirPlay 和 Spotify 等音频源。",
+  "The volume knob on the Sender system provides master volume control by sending the volume change to the Receivers which apply it to their own volume. Receivers can be configured to opt in or out of Master volume control via Multiroom Config.": "发送端系统上的音量旋钮提供主音量控制：音量变化会发送给各接收端，由接收端调整自身音量。可通过多房间配置设置接收端是否接受主音量控制。",
+  "The performance of the system depends on having low latency, high throughput networking and hosts. Discovery of Receivers relies on Multicast DNS. Addressing for the audio distribution protocol relies on IP Multicast using a default address of 239.0.0.1.": "系统性能取决于低延迟、高吞吐量的网络和主机。接收端发现依赖多播 DNS。音频分发协议的寻址依赖 IP 多播，默认地址为 239.0.0.1。",
+  "This item is located on the ellipsis context menu in Playback view and on the Playbar. It shows the number of Queue items, number of those that are Tracks, total Track time and the last Saved Playlist that was loaded or \"None\".": "此项目位于播放视图和播放栏的省略号上下文菜单中。它显示播放队列项目数量、其中曲目的数量、曲目总时长，以及最近加载的已保存播放列表；如果没有则显示“None”。",
+  "This item is located on the ellipsis context menu in Playback view and on the Playbar. It launches a new Browser tab/window and plays whats being output by the MPD HTTP streaming server. The server settings are located on Audio Config.": "此项目位于播放视图和播放栏的省略号上下文菜单中。它会打开新的浏览器标签页/窗口，并播放 MPD HTTP 音频流服务器当前输出的内容。服务器设置位于音频配置页面。",
+  "In Playback view clicking the Radio station name or the \"Album - Artist\" text under the cover art switches to Radio or Tag view respectively. In Radio view the list is scrolled to the station. In Tag view the lists are scrolled to the Genre, Artist and Album.": "在播放视图中，点击封面下方的电台名称或“专辑 - 艺术家”文字，可分别切换到电台视图或标签视图。在电台视图中，列表会滚动到对应电台；在标签视图中，列表会滚动到对应流派、艺术家和专辑。"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
