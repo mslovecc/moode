@@ -2268,6 +2268,7 @@
   "Select an NVMe drive from the list to format. The drive will be formatted as a single EXT4 partition (volume). Since formatting will erase all data on the drive a confirmation dialog will appear after clicking on the FORMAT button.": "从列表中选择要格式化的 NVMe 磁盘。磁盘将被格式化为单个 EXT4 分区（卷）。由于格式化会清除磁盘上的所有数据，点击“格式化”按钮后会出现确认对话框。",
   "Displays Peppy meter when MPD starts playing (after a configurable timeout). Touching the display switches immediately to the WebUI. If a touch does not occur within the timeout period the display switches back to Peppy.": "MPD 开始播放后，在可配置的超时时间结束时显示 Peppy 仪表。触摸显示屏会立即切换到 WebUI。如果在超时时间内没有触摸操作，显示屏将切换回 Peppy。"
 });
+  Object.assign(dict, {"Random":"随机播放","and":"和"});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
