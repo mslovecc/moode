@@ -2239,6 +2239,13 @@
   "Enter": "输入",
   "Off": "关闭"
 });
+  // Match source text including upstream spelling variants.
+  Object.assign(dict, {
+  "Wireless networks on the 5Ghz band generally perform better than those on the 2.4GHz band due to less congestion and interferrence from other networks.": "由于其他网络造成的拥塞和干扰较少，5 GHz 无线网络通常比 2.4 GHz 网络性能更好。",
+  "Set the value used for normalizing volume data comming from the FIFO pipe. A lower value will cause the meter needle to appear higher and vis versa for higher values.": "设置用于标准化 FIFO 管道音量数据的数值。数值越低，仪表指针显示越高；数值越高则相反。",
+  "How much audio to buffer before playback starts. A larger buffer can help reduce the likelyhood of audio glitches on a slow or poor quality network.": "开始播放前需要缓冲的音频量。较大的缓冲区有助于减少网络速度较慢或质量较差时出现的音频卡顿。",
+  "This cache is populated with Title | URL for each cover thats fetched. If the WebUI is refreshed or that same Title is streamed again the cached URL will be used instead of performing a provider search.": "此缓存为每张获取的封面保存 Title | URL。如果刷新 WebUI，或再次播放具有相同标题的音频流，系统将使用缓存的 URL，而不再向服务提供商发起搜索。"
+});
 
   var skipTags = /^(SCRIPT|STYLE|NOSCRIPT|OPTION|SELECT|TEXTAREA|INPUT|CODE|PRE)$/i;
   var skipSelectors = [
