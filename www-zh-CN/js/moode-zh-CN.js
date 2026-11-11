@@ -162,7 +162,7 @@
     if (!node || node.nodeType !== 3 || excluded(node)) return;
     var raw = node.nodeValue;
     var trimmed = raw.trim();
-    var normalized = trimmed.replace(/\\s+/g, ' ');
+    var normalized = trimmed.replace(/\s+/g, ' ');
     if (!normalized || !Object.prototype.hasOwnProperty.call(dict, normalized)) return;
     node.nodeValue = raw.replace(trimmed, dict[normalized]);
   }
